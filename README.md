@@ -25,9 +25,9 @@ Social Security numbers on the form, dates outside the workweek.
 
 Page 2 of WH-347 has to use the Department of Labor's wording exactly, so this project
 does not retype it. `public/forms/wh347.pdf` is DOL's own file, and its last page is
-appended to every PDF for signing. The `fetch official form` workflow downloads it from
-dol.gov on the first of each month and commits it when DOL publishes a new version. If
-the file is missing, the user is asked to add the form in the browser instead.
+appended to every PDF for signing. dol.gov refuses automated downloads, so when DOL
+publishes a new version, download it by hand from the link above and replace the file.
+If the file is missing, the user is asked to add the form in the browser instead.
 
 ## Assumptions worth knowing
 
