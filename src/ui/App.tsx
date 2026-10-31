@@ -130,7 +130,7 @@ export function App() {
   return (
     <>
       <header class="masthead">
-        <a class="wordmark" href="/">
+        <a class="wordmark" href={import.meta.env.BASE_URL}>
           wh347
         </a>
         <nav>

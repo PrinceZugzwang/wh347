@@ -1,0 +1,38 @@
+name: fetch official form
+
+# Downloads the current WH-347 from dol.gov into public/forms/ and commits it
+# if it changed. Its last page (the Statement of Compliance) is appended to
+# every payroll PDF, so it has to be DOL's own file rather than a copy.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 14 1 * *"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download WH-347
+        run: |
+          curl -fsSL --retry 3 \
+            -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36" \
+            -o /tmp/wh347.pdf \
+            https://www.dol.gov/sites/dolgov/files/WHD/legacy/files/wh347.pdf
+          head -c 5 /tmp/wh347.pdf | grep -q '%PDF-' || { echo "::error::dol.gov did not return a PDF"; exit 1; }
+          mv /tmp/wh347.pdf public/forms/wh347.pdf
+      - name: Commit if changed
+        run: |
+          git add public/forms/wh347.pdf
+          if git diff --cached --quiet; then
+            echo "Form unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: update official WH-347 from dol.gov"
+          git push

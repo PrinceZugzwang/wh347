@@ -24,9 +24,10 @@ Social Security numbers on the form, dates outside the workweek.
 ## The Statement of Compliance
 
 Page 2 of WH-347 has to use the Department of Labor's wording exactly, so this project
-does not retype it. If `public/forms/wh347.pdf` exists, its last page is appended to
-every PDF for signing. Otherwise the user can add the official form from dol.gov in the
-browser. Download it from the link above and save it at that path before deploying.
+does not retype it. `public/forms/wh347.pdf` is DOL's own file, and its last page is
+appended to every PDF for signing. The `fetch official form` workflow downloads it from
+dol.gov on the first of each month and commits it when DOL publishes a new version. If
+the file is missing, the user is asked to add the form in the browser instead.
 
 ## Assumptions worth knowing
 
@@ -63,6 +64,12 @@ The payroll logic is in `src/core` and has no browser dependencies. Money is hel
 integer cents and hours in hundredths of an hour, so totals never pick up floating
 point error. `fixtures/` has a sample export and wage determination that the tests use;
 the same sample is served from `public/` for the "try the sample file" link.
+
+## Deployment
+
+Every push to `main` builds the site and publishes it to GitHub Pages
+(`.github/workflows/deploy.yml`). The build sets `BASE_PATH=/wh347/` because Pages serves
+the site from that path; on any host that serves from the root, leave it unset.
 
 ## Disclaimer
 
