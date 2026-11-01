@@ -25,6 +25,7 @@ import { HeaderForm } from "./HeaderForm";
 import { IssueList } from "./IssueList";
 import { MappingTable } from "./MappingTable";
 import { PayrollPreview } from "./PayrollPreview";
+import { Mark } from "./Mark";
 import { readGrid } from "./read-file";
 import { load, save } from "./storage";
 
@@ -242,17 +243,25 @@ export function App() {
   return (
     <>
       <header class="top">
-        <a class="name" href={import.meta.env.BASE_URL}>
-          EasyWH347
-        </a>
-        <span class="what">Certified payroll for Davis-Bacon jobs</span>
-        <a class="how-link" href="#how">
-          How it works
-        </a>
+        <div class="top-inner">
+          <a class="brand" href={import.meta.env.BASE_URL}>
+            <Mark />
+            <span>
+              EasyWH347
+              <small>Certified payroll for Davis-Bacon work</small>
+            </span>
+          </a>
+          <nav>
+            <a href="#how">How it works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#questions">Questions</a>
+            <a href="mailto:support@easywh347.com">Contact</a>
+          </nav>
+        </div>
       </header>
 
       {!sheet ? (
-        <main class="start">
+        <main class="start" id="top">
           <h1>
             Upload this week's payroll export. <br />
             Get back a WH&#8209;347, ready to sign.
@@ -274,12 +283,12 @@ export function App() {
 
           <dl class="facts">
             <div>
-              <dt>Free, no account</dt>
-              <dd>Upload, check and download. Nothing to sign up for.</dd>
+              <dt>Nothing to retype</dt>
+              <dd>Reads the export you already run payroll from. Free, with no account to create.</dd>
             </div>
             <div>
               <dt>Current form</dt>
-              <dd>WH-347 as revised in 2025 (OMB 1235-0008, valid to January 2028). The previous version expired September 30, 2026.</dd>
+              <dd>Matches the WH-347 revised in January 2025 (OMB 1235-0008, valid through January 2028), with DOL's own signing page.</dd>
             </div>
             <div>
               <dt>Your file stays on your computer</dt>
@@ -467,6 +476,89 @@ export function App() {
         </dl>
       </section>
 
+      <section id="pricing" class="band">
+        <div class="band-inner">
+          <h2>Pricing</h2>
+          <p class="band-lede">The report itself is free. Pay only if you want the weekly filing taken off your hands.</p>
+          <div class="plans">
+            <div class="plan">
+              <h3>Free</h3>
+              <p class="price">$0</p>
+              <ul>
+                <li>Upload, check and download as often as you like</li>
+                <li>PDF with DOL's signing page, plus CSV</li>
+                <li>Overtime, wage rate and SSN checks</li>
+              </ul>
+              <a class="plan-action" href="#top">
+                Upload a payroll
+              </a>
+            </div>
+            <div class="plan">
+              <h3>Pro</h3>
+              <p class="price">
+                $39 <span>per month, per company</span>
+              </p>
+              <ul>
+                <li>Saved projects and weekly history</li>
+                <li>Upload files for LCPtracker and state portals, including California DIR</li>
+                <li>Email support from a person</li>
+              </ul>
+              <a class="plan-action" href="mailto:support@easywh347.com?subject=EasyWH347%20Pro%20early%20access">
+                Join the early list
+              </a>
+              <p class="plan-note">In development. Join the list and we'll email you when it opens.</p>
+            </div>
+            <div class="plan">
+              <h3>Done for you</h3>
+              <p class="price">
+                $199 <span>per month, per project</span>
+              </p>
+              <ul>
+                <li>Send us your payroll export each week</li>
+                <li>We prepare the certified payroll and enter it into the agency's portal</li>
+                <li>You review and sign</li>
+              </ul>
+              <a class="plan-action" href="mailto:support@easywh347.com?subject=Done-for-you%20certified%20payroll">
+                Talk to us
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="questions" class="notes">
+        <h2>Questions</h2>
+        <dl>
+          <dt>How is this different from DOL's fillable WH-347?</dt>
+          <dd>
+            The Department of Labor's web form is free and good, but you type every worker, day and rate by hand. EasyWH347 reads the
+            payroll export you already have, so a ten-person crew takes a minute instead of an hour, and it remembers your setup for next
+            week.
+          </dd>
+          <dt>Which payroll systems work?</dt>
+          <dd>
+            Any that can export a CSV or Excel file with one row per worker per day: Gusto, ADP, Paychex, QuickBooks, Sage, or a timesheet
+            you keep yourself. Columns are matched automatically and you can adjust them once.
+          </dd>
+          <dt>Is the older WH-347 still accepted?</dt>
+          <dd>
+            WH-347 is an optional DOL form; what's required is the weekly payroll information and a signed Statement of Compliance. Some
+            agencies and primes now ask for the January 2025 layout, which is what this produces. If in doubt, ask whoever receives your
+            payrolls.
+          </dd>
+          <dt>Do you file it for me?</dt>
+          <dd>
+            Not on the free plan: you download the PDF, sign it and send it as usual. The Done for you plan covers the weekly filing,
+            including LCPtracker and agency portals.
+          </dd>
+          <dt>Who sees my workers' information?</dt>
+          <dd>
+            No one. The file is processed in your browser and isn't uploaded. See the{" "}
+            <a href={`${import.meta.env.BASE_URL}privacy.html`}>privacy page</a> for exactly what is and isn't stored.
+          </dd>
+        </dl>
+      </section>
+
       {dragging && (
         <div class="drop-overlay" aria-hidden="true">
           <p>{sheet ? `Drop to replace ${fileName}` : "Drop your payroll file to load it"}</p>
@@ -478,7 +570,6 @@ export function App() {
           <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a>
           <a href={`${import.meta.env.BASE_URL}terms.html`}>Terms</a>
           <a href="mailto:support@easywh347.com">support@easywh347.com</a>
-          <a href="https://github.com/PrinceZugzwang/wh347">Source code</a>
         </div>
         <p>
           EasyWH347 is an independent tool and is not affiliated with the U.S. Department of Labor. It prepares a report for you to review;

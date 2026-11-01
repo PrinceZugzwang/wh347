@@ -99,36 +99,70 @@ label.link input {
   outline-offset: 2px;
 }
 
-/* Top line */
+/* Header */
 
 .top {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 22px 32px 0;
+  border-bottom: 1px solid var(--rule);
+  background: #fff;
 }
 
-.name {
-  font-weight: 700;
-  font-size: 16px;
+.top-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1240px;
+  height: 68px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
   color: var(--ink);
   text-decoration: none;
 }
 
-.name:hover {
+.brand:hover {
   color: var(--ink);
 }
 
-.what {
-  font-size: 14px;
+.brand > span {
+  display: flex;
+  flex-direction: column;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.brand small {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 
-.how-link {
-  margin-left: auto;
-  font-size: 14px;
+.mark {
+  flex: none;
+}
+
+.top nav {
+  display: flex;
+  gap: 28px;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+.top nav a {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.top nav a:hover {
+  color: var(--ink);
 }
 
 /* Start screen */
@@ -597,6 +631,103 @@ button.primary:disabled {
   cursor: not-allowed;
 }
 
+.band + .notes {
+  border-top: 0;
+}
+
+#questions dl {
+  grid-template-columns: minmax(0, 720px);
+  gap: 4px;
+}
+
+#questions dd {
+  margin-bottom: 18px;
+}
+
+/* Pricing */
+
+.band {
+  background: var(--wash);
+  border-top: 1px solid var(--rule);
+}
+
+.band-inner {
+  max-width: 1176px;
+  width: calc(100% - 64px);
+  margin: 0 auto;
+  padding: 56px 0 60px;
+}
+
+.band h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.band-lede {
+  margin: 4px 0 28px;
+  color: var(--ink-2);
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1.5px solid var(--ink);
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 28px 4px;
+  border-left: 1px solid var(--rule);
+}
+
+.plan:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.plan h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.price {
+  margin: 6px 0 14px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.price span {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+
+.plan ul {
+  margin: 0 0 20px;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.plan li + li {
+  margin-top: 4px;
+}
+
+.plan-action {
+  margin-top: auto;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.plan-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
 /* Explanations */
 
 .notes {
@@ -692,7 +823,6 @@ button.primary:disabled {
     width: calc(100% - 32px);
   }
 
-  .top,
   .start,
   .bench,
   .foot,
@@ -701,8 +831,27 @@ button.primary:disabled {
     padding-right: 16px;
   }
 
-  .what {
+  .top-inner {
+    padding: 0 16px;
+  }
+
+  .brand small,
+  .top nav a:not([href="#pricing"]) {
     display: none;
+  }
+
+  .band-inner {
+    width: calc(100% - 32px);
+  }
+
+  .plans {
+    grid-template-columns: 1fr;
+  }
+
+  .plan {
+    padding: 20px 0 16px;
+    border-left: 0;
+    border-bottom: 1px solid var(--rule);
   }
 
   .start {
