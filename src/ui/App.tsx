@@ -76,6 +76,7 @@ export function App() {
   const [officialForm, setOfficialForm] = useState<Uint8Array | null>(null);
   const [officialFormSource, setOfficialFormSource] = useState<"bundled" | "uploaded" | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   useEffect(() => save("header", header), [header]);
   useEffect(() => save("rates", { text: ratesText }), [ratesText]);
@@ -122,6 +123,57 @@ export function App() {
     setOfficialForm(new Uint8Array(await file.arrayBuffer()));
     setOfficialFormSource("uploaded");
   }
+
+  // Accept a file dropped anywhere on the page. Without this, a drop that
+  // misses the upload box makes the browser open the file and leave the site.
+  useEffect(() => {
+    let depth = 0;
+    const hasFiles = (e: DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes("Files");
+    const onEnter = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      depth += 1;
+      setDragging(true);
+    };
+    const onOver = (e: DragEvent) => {
+      if (hasFiles(e)) e.preventDefault();
+    };
+    const onLeave = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) setDragging(false);
+    };
+    const onDrop = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      depth = 0;
+      setDragging(false);
+      const file = e.dataTransfer?.files[0];
+      if (!file) return;
+      if (/\.pdf$/i.test(file.name)) void onOfficialForm(file);
+      else void onFile(file);
+    };
+    window.addEventListener("dragenter", onEnter);
+    window.addEventListener("dragover", onOver);
+    window.addEventListener("dragleave", onLeave);
+    window.addEventListener("drop", onDrop);
+    return () => {
+      window.removeEventListener("dragenter", onEnter);
+      window.removeEventListener("dragover", onOver);
+      window.removeEventListener("dragleave", onLeave);
+      window.removeEventListener("drop", onDrop);
+    };
+  }, []);
+
+  // Fetch the lazily loaded parts early, so the page keeps working with the
+  // connection off. That is also how a user can check nothing is uploaded.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      void import("../core/render/pdf");
+      void import("read-excel-file/browser");
+    }, 1200);
+    return () => clearTimeout(id);
+  }, []);
 
   function onMapping(next: ColumnMapping) {
     setMapping(next);
@@ -219,6 +271,21 @@ export function App() {
             </button>{" "}
             for an electrical subcontractor with three workers.
           </p>
+
+          <dl class="facts">
+            <div>
+              <dt>Free, no account</dt>
+              <dd>Upload, check and download. Nothing to sign up for.</dd>
+            </div>
+            <div>
+              <dt>Current form</dt>
+              <dd>WH-347 as revised in 2025 (OMB 1235-0008, valid to January 2028). The previous version expired September 30, 2026.</dd>
+            </div>
+            <div>
+              <dt>Your file stays on your computer</dt>
+              <dd>It is read in this browser tab and never uploaded. Once this page has loaded it works with the internet switched off.</dd>
+            </div>
+          </dl>
 
           <figure class="proof">
             <img
@@ -387,6 +454,11 @@ export function App() {
             The Statement of Compliance must use the Department of Labor's exact wording, so page 2 of your PDF is the official WH-347 page,
             not a copy.
           </dd>
+          <dt>The rules it follows</dt>
+          <dd>
+            Weekly certified payrolls under the Davis-Bacon and Related Acts, 29 CFR 5.5(a)(3), and overtime under the Contract Work Hours
+            and Safety Standards Act. Reports are due to the prime contractor or agency within seven days of the end of each pay week.
+          </dd>
           <dt>What it doesn't do</dt>
           <dd>
             It doesn't file anything for you or replace the certifying official's review. California DIR (eCPR) and LCPtracker uploads are
@@ -395,10 +467,22 @@ export function App() {
         </dl>
       </section>
 
+      {dragging && (
+        <div class="drop-overlay" aria-hidden="true">
+          <p>{sheet ? `Drop to replace ${fileName}` : "Drop your payroll file to load it"}</p>
+        </div>
+      )}
+
       <footer class="foot">
-        <p>
-          Not affiliated with the U.S. Department of Labor. The contractor signing the payroll is responsible for its accuracy.{" "}
+        <div class="foot-links">
+          <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a>
+          <a href={`${import.meta.env.BASE_URL}terms.html`}>Terms</a>
+          <a href="mailto:support@easywh347.com">support@easywh347.com</a>
           <a href="https://github.com/PrinceZugzwang/wh347">Source code</a>
+        </div>
+        <p>
+          EasyWH347 is an independent tool and is not affiliated with the U.S. Department of Labor. It prepares a report for you to review;
+          the contractor signing the payroll is responsible for its accuracy. Last updated October 2026.
         </p>
       </footer>
     </>
