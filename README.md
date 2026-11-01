@@ -67,9 +67,10 @@ the same sample is served from `public/` for the "try the sample file" link.
 
 ## Deployment
 
-Every push to `main` builds the site and publishes it to GitHub Pages
-(`.github/workflows/deploy.yml`). The build sets `BASE_PATH=/wh347/` because Pages serves
-the site from that path; on any host that serves from the root, leave it unset.
+Every push to `main` builds the site and publishes it to GitHub Pages at
+https://easywh347.com (`.github/workflows/deploy.yml`). The custom domain is set in the
+repository's Pages settings, with the domain's DNS on Cloudflare. To host it under a
+sub-path instead, build with `BASE_PATH=/that-path/`.
 
 ## Disclaimer
 

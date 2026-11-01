@@ -29,7 +29,7 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          BASE_PATH: /wh347/
+          BASE_PATH: /
       - name: Warn if the official form is missing
         run: test -f dist/forms/wh347.pdf || echo "::warning::public/forms/wh347.pdf is missing; users will be asked to add the form themselves."
       - uses: actions/upload-pages-artifact@v3

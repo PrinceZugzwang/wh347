@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://easywh347.com/sitemap.xml
