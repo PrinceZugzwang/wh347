@@ -5,45 +5,56 @@ interface Props {
   onChange: (header: ProjectHeader) => void;
 }
 
-const TEXT_FIELDS: { key: keyof ProjectHeader; label: string; wide?: boolean; hint?: string }[] = [
-  { key: "contractorName", label: "Contractor or subcontractor", wide: true },
-  { key: "contractorAddress", label: "Business address", wide: true },
-  { key: "projectName", label: "Project name" },
+type TextKey =
+  | "contractorName"
+  | "contractorAddress"
+  | "projectName"
+  | "projectLocation"
+  | "projectNumber"
+  | "wageDeterminationNumber"
+  | "payrollNumber";
+
+const FIELDS: { key: TextKey; label: string; span?: 2; placeholder?: string }[] = [
+  { key: "contractorName", label: "Your company", span: 2 },
+  { key: "contractorAddress", label: "Business address", span: 2 },
+  { key: "projectName", label: "Project", span: 2 },
   { key: "projectLocation", label: "Project location" },
   { key: "projectNumber", label: "Project or contract no." },
-  { key: "wageDeterminationNumber", label: "Wage determination no.", hint: "e.g. CA20260001" },
-  { key: "payrollNumber", label: "Payroll no.", hint: "Starts at 1 and counts up each week" },
+  { key: "wageDeterminationNumber", label: "Wage determination no.", span: 2, placeholder: "CA20260001" },
+  { key: "payrollNumber", label: "Payroll no." },
 ];
 
+/** The report header, laid out as ruled cells like the header block of the printed form. */
 export function HeaderForm({ header, onChange }: Props) {
   const set = <K extends keyof ProjectHeader>(key: K, value: ProjectHeader[K]) => onChange({ ...header, [key]: value });
 
   return (
-    <div class="grid">
-      <fieldset class="field wide role">
-        <legend>You are the</legend>
-        <label>
-          <input type="radio" name="role" checked={header.role === "prime"} onChange={() => set("role", "prime")} /> Prime contractor
-        </label>
-        <label>
-          <input type="radio" name="role" checked={header.role === "subcontractor"} onChange={() => set("role", "subcontractor")} />{" "}
-          Subcontractor
-        </label>
-      </fieldset>
-      {TEXT_FIELDS.map(({ key, label, wide, hint }) => (
-        <label class={`field${wide ? " wide" : ""}`} key={key}>
+    <div class="cells">
+      {FIELDS.map(({ key, label, span, placeholder }) => (
+        <label class={span ? "cell span-2" : "cell"} key={key}>
           <span>{label}</span>
-          <input type="text" value={String(header[key])} placeholder={hint} onInput={(e) => set(key, e.currentTarget.value as never)} />
+          <input type="text" value={header[key]} placeholder={placeholder} onInput={(e) => set(key, e.currentTarget.value)} />
         </label>
       ))}
-      <label class="field">
+      <label class="cell">
         <span>Week ending</span>
         <input type="date" value={header.weekEnding} onInput={(e) => set("weekEnding", e.currentTarget.value)} />
       </label>
-      <label class="field check">
-        <input type="checkbox" checked={header.isFinal} onChange={(e) => set("isFinal", e.currentTarget.checked)} />
-        <span>Final payroll for this project</span>
-      </label>
+      <div class="cell span-2 choices" role="group" aria-label="Your role on the project">
+        <span>You are the</span>
+        <div class="opts">
+          <label>
+            <input type="radio" name="role" checked={header.role === "prime"} onChange={() => set("role", "prime")} /> Prime contractor
+          </label>
+          <label>
+            <input type="radio" name="role" checked={header.role === "subcontractor"} onChange={() => set("role", "subcontractor")} />{" "}
+            Subcontractor
+          </label>
+          <label>
+            <input type="checkbox" checked={header.isFinal} onChange={(e) => set("isFinal", e.currentTarget.checked)} /> Final payroll
+          </label>
+        </div>
+      </div>
     </div>
   );
 }

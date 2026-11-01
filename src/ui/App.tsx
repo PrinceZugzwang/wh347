@@ -4,6 +4,7 @@ import {
   type Cell,
   type ColumnMapping,
   FIELD_LABELS,
+  addDays,
   formatHours,
   formatMoney,
   type Issue,
@@ -15,6 +16,7 @@ import {
   type Sheet,
   toSheet,
   validateHeader,
+  shortDate,
   validatePayroll,
 } from "../core";
 import { renderPayrollCsv } from "../core/render/csv";
@@ -24,8 +26,6 @@ import { IssueList } from "./IssueList";
 import { MappingTable } from "./MappingTable";
 import { PayrollPreview } from "./PayrollPreview";
 import { readGrid } from "./read-file";
-import { Mark } from "./Mark";
-import { Specimen } from "./Specimen";
 import { load, save } from "./storage";
 
 const EMPTY_HEADER: ProjectHeader = {
@@ -114,7 +114,7 @@ export function App() {
     setHeader(SAMPLE_HEADER);
     setRatesText(wd);
     await onFile(new File([csv], "sample-timecards.csv", { type: "text/csv" }));
-    document.getElementById("review")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.scrollTo({ top: 0 });
   }
 
   async function onOfficialForm(file: File | undefined) {
@@ -129,6 +129,18 @@ export function App() {
   }
 
   const missing = useMemo(() => missingRequired(mapping), [mapping]);
+
+  // Most exports don't carry the week-ending date, so suggest the Saturday that closes the last day worked.
+  useEffect(() => {
+    if (!sheet || missing.length > 0 || header.weekEnding) return;
+    const last = readTimecards(sheet, mapping)
+      .lines.map((l) => l.date)
+      .sort()
+      .at(-1);
+    if (!last) return;
+    const weekday = new Date(`${last}T00:00:00Z`).getUTCDay();
+    setHeader((h) => ({ ...h, weekEnding: addDays(last, (6 - weekday) % 7) }));
+  }, [sheet, mapping, missing, header.weekEnding]);
   const rates = useMemo(() => parseRates(ratesText), [ratesText]);
 
   const result = useMemo(() => {
@@ -141,14 +153,6 @@ export function App() {
 
   const errors = result?.issues.filter((i) => i.level === "error").length ?? 0;
   const ready = result !== null && errors === 0 && result.payroll.rows.length > 0;
-  const projectDone = Boolean(header.contractorName && header.projectName && header.projectNumber && header.weekEnding);
-  const steps = [
-    { id: "project", label: "Project details", done: projectDone },
-    { id: "timecards", label: "Timecards", done: sheet !== null && missing.length === 0 },
-    { id: "rates", label: "Wage rates", done: rates.length > 0, optional: true },
-    { id: "review", label: "Review", done: result !== null && errors === 0 },
-    { id: "download", label: "Download", done: false },
-  ];
   const totals = result
     ? {
         workers: new Set(result.payroll.rows.map((r) => r.entryNumber)).size,
@@ -173,289 +177,229 @@ export function App() {
     }
   }
 
+  const status = !sheet
+    ? ""
+    : missing.length > 0
+      ? `Match ${missing.length === 1 ? "the last required column" : `${missing.length} required columns`} to continue.`
+      : !result
+        ? "Add the week ending date."
+        : errors > 0
+          ? `${errors} ${errors === 1 ? "problem" : "problems"} to fix before you can download.`
+          : `Ready to sign. Week ending ${shortDate(header.weekEnding)}, ${totals?.workers ?? 0} ${totals?.workers === 1 ? "worker" : "workers"}.`;
+
   return (
     <>
-      <header class="topbar">
-        <div class="wrap topbar-inner">
-          <a class="brand" href={import.meta.env.BASE_URL}>
-            <Mark />
-            EasyWH347
-          </a>
-          <nav>
-            <a href="#how">How it works</a>
-            <a href="#privacy">Privacy</a>
-            <a class="nav-cta" href="#start">
-              Start a payroll
-            </a>
-          </nav>
-        </div>
+      <header class="top">
+        <a class="name" href={import.meta.env.BASE_URL}>
+          EasyWH347
+        </a>
+        <span class="what">Certified payroll for Davis-Bacon jobs</span>
+        <a class="how-link" href="#how">
+          How it works
+        </a>
       </header>
 
-      <section class="hero">
-        <div class="wrap hero-inner">
-          <div class="hero-text">
-            <h1>Certified payroll from the export you already have.</h1>
-            <p class="hero-sub">
-              Upload last week's timecards from Gusto, ADP, Paychex, QuickBooks or a spreadsheet. Get a Davis-Bacon payroll in the WH-347
-              layout, with overtime split out and every rate checked, ready to sign.
-            </p>
-            <div class="hero-actions">
-              <a class="button" href="#start">
-                Start a payroll
-              </a>
-              <button type="button" class="button secondary" onClick={loadSample}>
-                Try it with sample data
-              </button>
-            </div>
-            <dl class="assurances">
-              <div>
-                <dt>Official form</dt>
-                <dd>DOL WH-347, OMB 1235-0008</dd>
-              </div>
-              <div>
-                <dt>Private</dt>
-                <dd>Processed in your browser</dd>
-              </div>
-              <div>
-                <dt>Checked</dt>
-                <dd>Overtime, rates, SSNs</dd>
-              </div>
-            </dl>
+      {!sheet ? (
+        <main class="start">
+          <h1>
+            Upload this week's payroll export. <br />
+            Get back a WH&#8209;347, ready to sign.
+          </h1>
+
+          <label class="dropzone">
+            <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
+            <span class="dz-main">Choose your payroll file</span>
+            <span class="dz-sub">or drag it here. CSV or Excel, from Gusto, ADP, Paychex, QuickBooks or your own spreadsheet.</span>
+          </label>
+          {fileError && <p class="error-text">{fileError}</p>}
+          <p class="sample-line">
+            No file handy?{" "}
+            <button type="button" class="link" onClick={loadSample}>
+              Open a sample payroll
+            </button>{" "}
+            for an electrical subcontractor with three workers.
+          </p>
+
+          <figure class="proof">
+            <img
+              src={`${import.meta.env.BASE_URL}sample-report.png`}
+              width={1720}
+              height={470}
+              alt="Page 1 of a certified payroll produced from the sample file"
+            />
+            <figcaption>
+              What you download: page 1 from the sample file, overtime already split out. Page 2 is the Department of Labor's own signing
+              page.
+            </figcaption>
+          </figure>
+        </main>
+      ) : (
+        <main class="bench">
+          <div class="filebar">
+            <span>
+              <strong>{fileName}</strong> <span class="muted">{sheet.rows.length} rows</span>
+            </span>
+            <label class="link">
+              <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
+              Use a different file
+            </label>
           </div>
-          <Specimen />
-        </div>
-      </section>
 
-      <main id="start" class="wrap workspace">
-        <nav class="stepper" aria-label="Steps">
-          <ol>
-            {steps.map((step, i) => (
-              <li key={step.id} class={step.done ? "done" : ""}>
-                <a href={`#${step.id}`}>
-                  <span class="dot">{step.done ? "\u2713" : i + 1}</span>
-                  <span>
-                    {step.label}
-                    {step.optional && <em> optional</em>}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ol>
-          <p>Project details and column matching are saved in this browser, so next week starts where you left off.</p>
-        </nav>
+          {fileError && <p class="error-text">{fileError}</p>}
 
-        <div class="panels">
-          <section class="panel" id="project">
-            <header class="panel-head">
-              <h2>Project details</h2>
-              <p>Printed at the top of every page of the payroll.</p>
-            </header>
-            <div class="panel-body">
+          {missing.length > 0 && (
+            <section class="columns-needed">
+              <h2>Which columns hold this information?</h2>
+              <p>We couldn't find: {missing.map((f) => FIELD_LABELS[f]).join(", ")}. Pick them below. We'll remember for next week.</p>
+              <MappingTable headers={sheet.headers} mapping={mapping} onChange={onMapping} />
+            </section>
+          )}
+
+          <div class="layout">
+            <aside class="side">
+              <h2>Report header</h2>
+              <p class="side-note">Printed at the top of each page. Saved in this browser for next week.</p>
               <HeaderForm header={header} onChange={setHeader} />
-            </div>
-          </section>
 
-          <section class="panel" id="timecards">
-            <header class="panel-head">
-              <h2>Timecards</h2>
-              <p>
-                The payroll or time export for this week, one row per worker per day, as CSV or .xlsx. Column names don't need to match
-                anything.
-              </p>
-            </header>
-            <div class="panel-body">
-              <label class={`drop${sheet ? " loaded" : ""}`}>
-                <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
-                {sheet ? (
-                  <span>
-                    <strong>{fileName}</strong>
-                    <small>{sheet.rows.length} rows read. Choose a different file</small>
-                  </span>
-                ) : (
-                  <span>
-                    <strong>Choose a file</strong>
-                    <small>or drop it here</small>
-                  </span>
+              <details class="extra" open={ratesText.trim() !== ""}>
+                <summary>Check pay against the wage determination</summary>
+                <p>Paste the rates from your wage determination on SAM.gov. Each worker's base rate and fringe are checked against it.</p>
+                <textarea
+                  rows={6}
+                  spellcheck={false}
+                  value={ratesText}
+                  placeholder={"ELECTRICIAN......................$ 48.10   21.30\nLABORER, GROUP 2.................$ 31.85   15.50"}
+                  onInput={(e) => setRatesText(e.currentTarget.value)}
+                />
+                {ratesText.trim() !== "" && (
+                  <p class="small muted">
+                    Read {rates.length} {rates.length === 1 ? "classification" : "classifications"}:{" "}
+                    {rates.map((r) => r.classification).join("; ")}
+                  </p>
                 )}
-              </label>
-              {fileError && <p class="error-text">{fileError}</p>}
-              {sheet && (
-                <details open={missing.length > 0} class="mapping-details">
-                  <summary>
-                    Column matching:{" "}
-                    {missing.length > 0 ? (
-                      <span class="error-text">still needed: {missing.map((f) => FIELD_LABELS[f]).join(", ")}</span>
-                    ) : (
-                      <span class="muted">all required columns found</span>
-                    )}
-                  </summary>
+              </details>
+
+              {missing.length === 0 && (
+                <details class="extra">
+                  <summary>Column matching</summary>
                   <MappingTable headers={sheet.headers} mapping={mapping} onChange={onMapping} />
                 </details>
               )}
-            </div>
-          </section>
+            </aside>
 
-          <section class="panel" id="rates">
-            <header class="panel-head">
-              <h2>
-                Wage rates <span class="tag">Optional</span>
-              </h2>
-              <p>Paste the classification lines from your wage determination on SAM.gov to check every worker's base rate and fringe.</p>
-            </header>
-            <div class="panel-body">
-              <textarea
-                rows={5}
-                spellcheck={false}
-                value={ratesText}
-                placeholder={"ELECTRICIAN......................$ 48.10   21.30\nLABORER, GROUP 2.................$ 31.85   15.50"}
-                onInput={(e) => setRatesText(e.currentTarget.value)}
-              />
-              {ratesText.trim() !== "" && (
-                <p class="small muted">
-                  {rates.length} {rates.length === 1 ? "classification" : "classifications"} read:{" "}
-                  {rates.map((r) => r.classification).join("; ")}
-                </p>
-              )}
-            </div>
-          </section>
-
-          <section class="panel" id="review">
-            <header class="panel-head">
-              <h2>Review</h2>
-              <p>Every line as it will print, with anything that would get the payroll sent back.</p>
-            </header>
-            <div class="panel-body">
-              {!result && <p class="muted">Add the week ending date and a timecard file to see the payroll.</p>}
+            <section class="sheet-area">
+              {!result && <p class="muted">The payroll appears here once the week ending date is set.</p>}
               {result && totals && (
                 <>
-                  <dl class="totals">
-                    <div>
-                      <dt>Workers</dt>
-                      <dd>{totals.workers}</dd>
-                    </div>
-                    <div>
-                      <dt>Hours</dt>
-                      <dd>{formatHours(totals.hours)}</dd>
-                    </div>
-                    <div>
-                      <dt>Overtime hours</dt>
-                      <dd class={totals.overtime > 0 ? "ot" : ""}>{formatHours(totals.overtime)}</dd>
-                    </div>
-                    <div>
-                      <dt>Gross, this project</dt>
-                      <dd>${formatMoney(totals.gross)}</dd>
-                    </div>
-                    <div>
-                      <dt>Net pay</dt>
-                      <dd>${formatMoney(totals.net)}</dd>
-                    </div>
-                  </dl>
+                  <p class="summary">
+                    <span>
+                      <b>{totals.workers}</b> {totals.workers === 1 ? "worker" : "workers"}
+                    </span>
+                    <span>
+                      <b>{formatHours(totals.hours)}</b> hours
+                      {totals.overtime > 0 && (
+                        <>
+                          , <b class="ot">{formatHours(totals.overtime)}</b> overtime
+                        </>
+                      )}
+                    </span>
+                    <span>
+                      <b>${formatMoney(totals.gross)}</b> gross on this project
+                    </span>
+                    <span>
+                      <b>${formatMoney(totals.net)}</b> net pay
+                    </span>
+                  </p>
                   <IssueList issues={result.issues} />
                   {result.payroll.rows.length > 0 && <PayrollPreview payroll={result.payroll} />}
                 </>
               )}
-            </div>
-          </section>
-
-          <section class="panel" id="download">
-            <header class="panel-head">
-              <h2>Download</h2>
-              <p>
-                The Statement of Compliance must use the Department of Labor's exact wording, so the official page 2 of WH-347 is attached
-                for signing rather than retyped.
-              </p>
-            </header>
-            <div class="panel-body">
               {officialFormSource !== "bundled" && (
-                <p class="soc-note">
+                <p class="small muted soc-note">
+                  The signing page has to be the Department of Labor's own.{" "}
                   {officialFormSource === "uploaded" ? (
                     "Official WH-347 added."
                   ) : (
                     <>
-                      Download the form from <a href={OFFICIAL_FORM_URL}>dol.gov</a> and add it here:{" "}
+                      Download WH-347 from <a href={OFFICIAL_FORM_URL}>dol.gov</a> and{" "}
+                      <label class="link">
+                        <input type="file" accept="application/pdf" onChange={(e) => onOfficialForm(e.currentTarget.files?.[0])} />
+                        add it here
+                      </label>
+                      .
                     </>
                   )}
-                  <label class="inline-file">
-                    <input type="file" accept="application/pdf" onChange={(e) => onOfficialForm(e.currentTarget.files?.[0])} />
-                    <span>Add WH-347 PDF</span>
-                  </label>
                 </p>
               )}
-              <div class="actions">
-                <button type="button" class="button" disabled={!ready || busy} onClick={onDownloadPdf}>
-                  {busy ? "Preparing PDF" : "Download PDF"}
-                </button>
-                <button
-                  type="button"
-                  class="button secondary"
-                  disabled={!ready}
-                  onClick={() => result && download(renderPayrollCsv(result.payroll), `${baseName}.csv`, "text/csv")}
-                >
-                  Download CSV
-                </button>
-                {result && errors > 0 && <span class="error-text">Fix the problems under Review first.</span>}
-              </div>
-            </div>
-          </section>
-        </div>
-      </main>
+            </section>
+          </div>
+        </main>
+      )}
 
-      <section id="how" class="info">
-        <div class="wrap info-inner">
-          <h2>How the numbers are worked out</h2>
-          <dl>
-            <dt>Overtime</dt>
-            <dd>
-              Hours past 40 in the workweek become overtime at one and a half times the basic rate, counted in date order. If your export
-              already splits out overtime hours, that split is used instead, and you're told if it leaves more than 40 straight-time hours.
-            </dd>
-            <dt>Two classifications in one week</dt>
-            <dd>
-              The worker gets one row per classification under the same entry number. Weekly totals, deductions and net pay appear once.
-            </dd>
-            <dt>Fringe benefits</dt>
-            <dd>
-              Credits paid into plans go in column 6B. Fringe paid to the worker in cash goes in 6C and counts toward gross pay. Fringe is
-              paid on overtime hours at the straight-time amount.
-            </dd>
-            <dt>Weekly deductions</dt>
-            <dd>
-              Most exports repeat the week's deductions on every daily row. Repeated values are counted once. Values that differ between
-              rows are added up, and you're asked to check them.
-            </dd>
-            <dt>What this doesn't do</dt>
-            <dd>
-              It doesn't file anything for you, and it doesn't replace the certifying official's review. California DIR (eCPR) and
-              LCPtracker uploads are on the way.
-            </dd>
-          </dl>
+      {sheet && (
+        <div class="dock">
+          <div class="dock-inner">
+            <p class={`dock-status${ready ? " ready" : ""}`}>{status}</p>
+            <button
+              type="button"
+              class="link"
+              disabled={!ready}
+              onClick={() => result && download(renderPayrollCsv(result.payroll), `${baseName}.csv`, "text/csv")}
+            >
+              CSV
+            </button>
+            <button type="button" class="primary" disabled={!ready || busy} onClick={onDownloadPdf}>
+              {busy ? "Preparing PDF" : "Download PDF"}
+            </button>
+          </div>
         </div>
+      )}
+
+      <section id="how" class="notes">
+        <h2>How it works</h2>
+        <dl>
+          <dt>Your file stays here</dt>
+          <dd>
+            The payroll file is read in this browser tab and never uploaded. Only the last four digits of each Social Security number are
+            printed. The report header and your column matching are remembered in this browser, so next week's payroll takes a minute.
+          </dd>
+          <dt>Overtime</dt>
+          <dd>
+            Hours past 40 in the workweek become overtime at one and a half times the basic rate, counted in date order. If your export
+            already splits out overtime, that split is used, and you're told if it leaves more than 40 straight-time hours.
+          </dd>
+          <dt>Two trades in one week</dt>
+          <dd>
+            The worker gets one row per classification under the same entry number. Weekly totals, deductions and net pay appear once.
+          </dd>
+          <dt>Fringe benefits</dt>
+          <dd>
+            Plan contributions go in column 6B. Fringe paid in cash goes in 6C and counts toward gross pay. Fringe on overtime hours is paid
+            at the straight-time amount.
+          </dd>
+          <dt>Weekly deductions</dt>
+          <dd>
+            Most exports repeat the week's deductions on every daily row. Repeats are counted once. Values that differ between rows are
+            added up, and you're asked to check them.
+          </dd>
+          <dt>The signing page</dt>
+          <dd>
+            The Statement of Compliance must use the Department of Labor's exact wording, so page 2 of your PDF is the official WH-347 page,
+            not a copy.
+          </dd>
+          <dt>What it doesn't do</dt>
+          <dd>
+            It doesn't file anything for you or replace the certifying official's review. California DIR (eCPR) and LCPtracker uploads are
+            next.
+          </dd>
+        </dl>
       </section>
 
-      <section id="privacy" class="info">
-        <div class="wrap info-inner">
-          <h2>Privacy</h2>
-          <dl>
-            <dt>Your payroll file</dt>
-            <dd>Read and processed in this browser tab. It is never uploaded, and nothing in it is sent anywhere.</dd>
-            <dt>What's remembered</dt>
-            <dd>Project details and your column matching, kept in this browser only, so next week's payroll takes a minute.</dd>
-            <dt>Social Security numbers</dt>
-            <dd>Only the last four digits appear in the report, as the form requires.</dd>
-          </dl>
-        </div>
-      </section>
-
-      <footer class="footer">
-        <div class="wrap footer-inner">
-          <p>
-            Not affiliated with the U.S. Department of Labor. EasyWH347 prepares a report for you to review; the contractor remains
-            responsible for its accuracy.
-          </p>
-          <p>
-            <a href="https://github.com/PrinceZugzwang/wh347">Open source</a>
-          </p>
-        </div>
+      <footer class="foot">
+        <p>
+          Not affiliated with the U.S. Department of Labor. The contractor signing the payroll is responsible for its accuracy.{" "}
+          <a href="https://github.com/PrinceZugzwang/wh347">Source code</a>
+        </p>
       </footer>
     </>
   );

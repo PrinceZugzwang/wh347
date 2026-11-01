@@ -1,4 +1,4 @@
-import { dayLetter, formatHours, formatMoney, type Payroll, shortDate } from "../core";
+import { dayLetter, formatHours, formatMoney, type Payroll } from "../core";
 
 export function PayrollPreview({ payroll }: { payroll: Payroll }) {
   return (
@@ -7,21 +7,19 @@ export function PayrollPreview({ payroll }: { payroll: Payroll }) {
         <thead>
           <tr>
             <th>#</th>
-            <th>Worker</th>
-            <th>Class</th>
+            <th>Worker and classification</th>
             <th />
             {payroll.weekDates.map((d) => (
               <th key={d} class="num">
                 {dayLetter(d)}
                 <br />
-                {shortDate(d)}
+                {Number(d.slice(8))}
               </th>
             ))}
             <th class="num">Total</th>
             <th class="num">Rate</th>
-            <th class="num">Gross, project</th>
-            <th class="num">Deductions</th>
-            <th class="num">Net</th>
+            <th class="num">Gross</th>
+            <th class="num">Net pay</th>
           </tr>
         </thead>
         <tbody>
@@ -38,13 +36,10 @@ export function PayrollPreview({ payroll }: { payroll: Payroll }) {
                       <td rowSpan={2} class="worker">
                         <strong>{r.workerName}</strong>
                         <br />
-                        <span class="muted">
-                          xxx-xx-{r.workerId} · {r.status}
-                          {r.apprenticeLevel ? ` ${r.apprenticeLevel}` : ""}
-                        </span>
-                      </td>
-                      <td rowSpan={2} class="class">
+                        <span class="muted">xxx-xx-{r.workerId}</span>
+                        <br />
                         {r.classification}
+                        {r.status === "RA" && <span class="muted">, apprentice{r.apprenticeLevel ? ` ${r.apprenticeLevel}` : ""}</span>}
                       </td>
                     </>
                   ) : null}
@@ -60,9 +55,6 @@ export function PayrollPreview({ payroll }: { payroll: Payroll }) {
                     <>
                       <td rowSpan={2} class="num">
                         {formatMoney(r.grossThisProject)}
-                      </td>
-                      <td rowSpan={2} class="num">
-                        {r.carriesWorkerTotals ? formatMoney(r.deductionsTotal) : ""}
                       </td>
                       <td rowSpan={2} class="num">
                         {r.carriesWorkerTotals ? formatMoney(r.netPay) : ""}
