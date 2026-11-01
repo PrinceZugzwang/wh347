@@ -22,6 +22,7 @@ import { IssueList } from "./IssueList";
 import { MappingTable } from "./MappingTable";
 import { PayrollPreview } from "./PayrollPreview";
 import { readGrid } from "./read-file";
+import { Specimen } from "./Specimen";
 import { load, save } from "./storage";
 
 const EMPTY_HEADER: ProjectHeader = {
@@ -130,23 +131,34 @@ export function App() {
   return (
     <>
       <header class="masthead">
-        <a class="wordmark" href={import.meta.env.BASE_URL}>
-          wh347
-        </a>
-        <nav>
-          <a href="#how">How it works</a>
-          <a href="#privacy">Privacy</a>
-          <a href="https://github.com/PrinceZugzwang/wh347">Source</a>
-        </nav>
+        <div class="bar">
+          <a class="wordmark" href={import.meta.env.BASE_URL}>
+            easy<span>wh347</span>
+          </a>
+          <nav>
+            <a href="#how">How it works</a>
+            <a href="#privacy">Privacy</a>
+            <a href="https://github.com/PrinceZugzwang/wh347">Source</a>
+          </nav>
+        </div>
       </header>
 
       <main>
         <section class="intro">
-          <h1>Turn your payroll export into a certified payroll report.</h1>
-          <p>
-            Upload the timecard file from QuickBooks, Sage, ADP or a spreadsheet. You get a Davis-Bacon payroll laid out like Form WH-347,
-            checked for the mistakes that get reports sent back. Your file stays in this browser.
-          </p>
+          <div class="intro-text">
+            <h1>Turn your payroll export into a certified payroll report.</h1>
+            <p>
+              Upload the timecard file from Gusto, ADP, Paychex, QuickBooks or a spreadsheet. You get a Davis-Bacon payroll laid out like
+              Form WH-347, checked for the mistakes that get reports sent back.
+            </p>
+            <ul class="facts">
+              <li>Overtime past 40 hours split out and paid at 1.5x</li>
+              <li>Rates checked against your wage determination</li>
+              <li>Only the last four SSN digits printed</li>
+              <li>Your file never leaves this browser</li>
+            </ul>
+          </div>
+          <Specimen />
         </section>
 
         <section class="step">
