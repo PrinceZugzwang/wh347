@@ -1,27 +1,46 @@
-/** A fixed before/after example for the top of the page: export rows in, a WH-347 line out. */
+/** A fixed excerpt of a finished report, so visitors see the output before they upload anything. */
 export function Specimen() {
   return (
-    <figure class="specimen" aria-label="Example: five daily rows from a payroll export become one WH-347 entry">
-      <div class="specimen-file">
-        <p class="specimen-name">payroll_export.csv</p>
-        <pre>
-          {`Employee   SSN          Date   Hrs  Rate
-Ramirez D  512-48-7731  10/19  9    48.10
-Ramirez D  512-48-7731  10/20  9    48.10
-Ramirez D  512-48-7731  10/21  9    48.10
-Ramirez D  512-48-7731  10/22  9    48.10
-Ramirez D  512-48-7731  10/23  9    48.10`}
-        </pre>
-      </div>
-      <div class="specimen-out">
-        <p class="specimen-name">WH-347, entry 1</p>
+    <figure class="specimen" aria-label="Excerpt of a finished certified payroll">
+      <div class="sheet">
+        <div class="sheet-title">
+          <span>Certified Payroll, Davis-Bacon and Related Acts</span>
+          <span>Payroll no. 7</span>
+        </div>
+        <dl class="sheet-head">
+          <div>
+            <dt>Subcontractor</dt>
+            <dd>Bayline Electric Inc.</dd>
+          </div>
+          <div>
+            <dt>Project</dt>
+            <dd>Pinole Valley HS Modernization</dd>
+          </div>
+          <div>
+            <dt>Week ending</dt>
+            <dd>10/24/2026</dd>
+          </div>
+        </dl>
         <table>
+          <thead>
+            <tr>
+              <th class="l">Worker</th>
+              <th />
+              <th>M</th>
+              <th>Tu</th>
+              <th>W</th>
+              <th>Th</th>
+              <th>F</th>
+              <th>Total</th>
+              <th>Rate</th>
+              <th>Gross</th>
+            </tr>
+          </thead>
           <tbody>
             <tr>
-              <td rowSpan={2} class="who">
-                Ramirez, D.
-                <br />
-                <span>xxx-xx-7731</span>
+              <td rowSpan={2} class="l">
+                Ramirez, Daniel
+                <small>xxx-xx-7731 · Electrician</small>
               </td>
               <td class="so">S</td>
               <td>9</td>
@@ -29,23 +48,49 @@ Ramirez D  512-48-7731  10/23  9    48.10`}
               <td>9</td>
               <td>9</td>
               <td>4</td>
-              <td class="tot">40</td>
-              <td class="rate">48.10</td>
+              <td>40</td>
+              <td>48.10</td>
+              <td rowSpan={2}>2,354.50</td>
             </tr>
-            <tr class="ot">
+            <tr class="o">
               <td class="so">O</td>
               <td />
               <td />
               <td />
               <td />
               <td>5</td>
-              <td class="tot">5</td>
-              <td class="rate">72.15</td>
+              <td>5</td>
+              <td>72.15</td>
+            </tr>
+            <tr>
+              <td rowSpan={2} class="l">
+                Okafor, Grace
+                <small>xxx-xx-2286 · Apprentice, 3rd period</small>
+              </td>
+              <td class="so">S</td>
+              <td>8</td>
+              <td>8</td>
+              <td>8</td>
+              <td>8</td>
+              <td />
+              <td>32</td>
+              <td>26.46</td>
+              <td rowSpan={2}>846.72</td>
+            </tr>
+            <tr class="o">
+              <td class="so">O</td>
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
+              <td />
             </tr>
           </tbody>
         </table>
-        <p class="specimen-note">5 hours over 40 moved to overtime. Gross $2,284.75.</p>
       </div>
+      <figcaption>From a 14-row timecard export. Five hours past 40 moved to overtime automatically.</figcaption>
     </figure>
   );
 }

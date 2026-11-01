@@ -1,0 +1,7 @@
+General Decision Number: CA20260001 10/03/2026
+Modification Number 2
+ELEC0011-005 06/01/2026
+                                  Rates          Fringes
+ELECTRICIAN......................$ 48.10            21.30
+LABORER, GROUP 2.................$ 31.85            15.50
+OPERATOR, GROUP 4................$ 44.20            19.10

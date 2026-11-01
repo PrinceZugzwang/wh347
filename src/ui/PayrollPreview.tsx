@@ -35,7 +35,7 @@ export function PayrollPreview({ payroll }: { payroll: Payroll }) {
                       <td rowSpan={2} class="num">
                         {r.entryNumber}
                       </td>
-                      <td rowSpan={2}>
+                      <td rowSpan={2} class="worker">
                         <strong>{r.workerName}</strong>
                         <br />
                         <span class="muted">
@@ -43,7 +43,9 @@ export function PayrollPreview({ payroll }: { payroll: Payroll }) {
                           {r.apprenticeLevel ? ` ${r.apprenticeLevel}` : ""}
                         </span>
                       </td>
-                      <td rowSpan={2}>{r.classification}</td>
+                      <td rowSpan={2} class="class">
+                        {r.classification}
+                      </td>
                     </>
                   ) : null}
                   <td class="so">{line}</td>
