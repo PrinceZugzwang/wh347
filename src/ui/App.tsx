@@ -20,6 +20,7 @@ import {
   validatePayroll,
 } from "../core";
 import { renderPayrollCsv } from "../core/render/csv";
+import { adConversion, noteDownload, track } from "./analytics";
 import { download } from "./download";
 import { HeaderForm } from "./HeaderForm";
 import { IssueList } from "./IssueList";
@@ -78,6 +79,7 @@ export function App() {
   const [officialFormSource, setOfficialFormSource] = useState<"bundled" | "uploaded" | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [isSample, setIsSample] = useState(false);
 
   useEffect(() => save("header", header), [header]);
   useEffect(() => save("rates", { text: ratesText }), [ratesText]);
@@ -90,7 +92,7 @@ export function App() {
     });
   }, []);
 
-  async function onFile(file: File | undefined) {
+  async function onFile(file: File | undefined, isSample = false) {
     if (!file) return;
     setFileError("");
     try {
@@ -100,8 +102,17 @@ export function App() {
       const sameLayout = saved.headers.join("\u0000") === next.headers.join("\u0000");
       setSheet(next);
       setFileName(file.name);
-      setMapping(sameLayout ? saved.mapping : proposeMapping(next.headers));
+      const nextMapping = sameLayout ? saved.mapping : proposeMapping(next.headers);
+      setMapping(nextMapping);
+      setIsSample(isSample);
+      track("File loaded", {
+        sample: isSample,
+        type: file.name.toLowerCase().endsWith(".xlsx") ? "xlsx" : "csv",
+        rows: next.rows.length,
+        columns_matched: missingRequired(nextMapping).length === 0,
+      });
     } catch (err) {
+      track("File rejected");
       setSheet(null);
       setFileError(err instanceof Error ? err.message : String(err));
     }
@@ -115,7 +126,7 @@ export function App() {
     ]);
     setHeader(SAMPLE_HEADER);
     setRatesText(wd);
-    await onFile(new File([csv], "sample-timecards.csv", { type: "text/csv" }));
+    await onFile(new File([csv], "sample-timecards.csv", { type: "text/csv" }), true);
     window.scrollTo({ top: 0 });
   }
 
@@ -225,6 +236,11 @@ export function App() {
       const { renderPayrollPdf } = await import("../core/render/pdf");
       const bytes = await renderPayrollPdf(result.payroll, officialForm ?? undefined);
       download(bytes, `${baseName}.pdf`, "application/pdf");
+      track("PDF downloaded", { sample: isSample, workers: totals?.workers ?? 0 });
+      if (!isSample) {
+        adConversion();
+        noteDownload();
+      }
     } finally {
       setBusy(false);
     }
@@ -420,7 +436,11 @@ export function App() {
               type="button"
               class="link"
               disabled={!ready}
-              onClick={() => result && download(renderPayrollCsv(result.payroll), `${baseName}.csv`, "text/csv")}
+              onClick={() => {
+                if (!result) return;
+                download(renderPayrollCsv(result.payroll), `${baseName}.csv`, "text/csv");
+                track("CSV downloaded", { sample: isSample });
+              }}
             >
               CSV
             </button>
@@ -503,7 +523,11 @@ export function App() {
                 <li>Upload files for LCPtracker and state portals, including California DIR</li>
                 <li>Email support from a person</li>
               </ul>
-              <a class="plan-action" href="mailto:support@easywh347.com?subject=EasyWH347%20Pro%20early%20access">
+              <a
+                class="plan-action"
+                href="mailto:support@easywh347.com?subject=EasyWH347%20Pro%20early%20access"
+                onClick={() => track("Pro interest")}
+              >
                 Join the early list
               </a>
               <p class="plan-note">In development. Join the list and we'll email you when it opens.</p>
@@ -518,7 +542,11 @@ export function App() {
                 <li>We prepare the certified payroll and enter it into the agency's portal</li>
                 <li>You review and sign</li>
               </ul>
-              <a class="plan-action" href="mailto:support@easywh347.com?subject=Done-for-you%20certified%20payroll">
+              <a
+                class="plan-action"
+                href="mailto:support@easywh347.com?subject=Done-for-you%20certified%20payroll"
+                onClick={() => track("Done for you interest")}
+              >
                 Talk to us
               </a>
             </div>
