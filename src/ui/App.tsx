@@ -518,8 +518,12 @@ export function App() {
               <p class="price">
                 $39 <span>per month, per company</span>
               </p>
+              <p class="plan-pitch">Your 3 years of payroll records, ready if the agency asks.</p>
               <ul>
-                <li>Saved projects and weekly history</li>
+                <li>
+                  Every week you file, saved by project, for the 3 years after the work ends that Davis-Bacon rules require you to keep them
+                </li>
+                <li>Pull any week back up for an agency, a prime or an auditor in a minute</li>
                 <li>Upload files for LCPtracker and state portals, including California DIR</li>
                 <li>Email support from a person</li>
               </ul>
@@ -567,6 +571,13 @@ export function App() {
           <dd>
             Any that can export a CSV or Excel file with one row per worker per day: Gusto, ADP, Paychex, QuickBooks, Sage, or a timesheet
             you keep yourself. Columns are matched automatically and you can adjust them once.
+          </dd>
+          <dt>How long do I have to keep certified payrolls?</dt>
+          <dd>
+            Three years after all the work on the prime contract is finished, together with the time records, pay records and workers'
+            contact details behind them. The contracting agency or the Department of Labor can ask for them at any point in that period,
+            with or without an investigation. The free version doesn't store anything, so keep each PDF and CSV you download; Pro will keep
+            them for you.
           </dd>
           <dt>Is the older WH-347 still accepted?</dt>
           <dd>

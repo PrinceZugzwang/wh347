@@ -705,6 +705,13 @@ button.primary:disabled {
   color: var(--ink-3);
 }
 
+.plan-pitch {
+  margin: -6px 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
 .plan ul {
   margin: 0 0 20px;
   padding-left: 18px;
