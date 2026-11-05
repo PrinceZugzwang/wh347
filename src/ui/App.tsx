@@ -283,6 +283,14 @@ export function App() {
             Get back a WH&#8209;347, ready to sign.
           </h1>
 
+          <p class="blank-form">
+            Just need the blank WH&#8209;347?{" "}
+            <a href={`${import.meta.env.BASE_URL}forms/wh347.pdf`} download="WH-347.pdf" onClick={() => track("Blank form downloaded")}>
+              Download the official DOL form (PDF)
+            </a>
+            . Or skip the retyping and drop your payroll export below.
+          </p>
+
           <label class="dropzone">
             <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
             <span class="dz-main">Choose your payroll file</span>

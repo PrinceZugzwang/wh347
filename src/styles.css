@@ -174,12 +174,25 @@ label.link input {
 }
 
 h1 {
-  margin: 0 0 36px;
+  margin: 0 0 20px;
   font-size: 40px;
   line-height: 1.15;
   font-weight: 700;
   letter-spacing: -0.02em;
   max-width: 820px;
+}
+
+.blank-form {
+  margin: 0 0 28px;
+  max-width: 820px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.blank-form a {
+  color: var(--blue);
+  font-weight: 600;
 }
 
 .dropzone {
@@ -867,7 +880,12 @@ button.primary:disabled {
 
   h1 {
     font-size: 28px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+  }
+
+  .blank-form {
+    font-size: 16px;
+    margin-bottom: 22px;
   }
 
   h1 br {
