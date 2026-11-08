@@ -3,8 +3,13 @@ import {
   buildPayroll,
   type Cell,
   type ColumnMapping,
+  type CrewEntry,
   FIELD_LABELS,
   addDays,
+  clearHours,
+  crewToLines,
+  emptyEntry,
+  lastFour,
   formatHours,
   formatMoney,
   type Issue,
@@ -18,9 +23,11 @@ import {
   validateHeader,
   shortDate,
   validatePayroll,
+  workweek,
 } from "../core";
 import { renderPayrollCsv } from "../core/render/csv";
 import { adConversion, noteDownload, track } from "./analytics";
+import { CrewForm } from "./CrewForm";
 import { download } from "./download";
 import { HeaderForm } from "./HeaderForm";
 import { IssueList } from "./IssueList";
@@ -58,6 +65,17 @@ const SAMPLE_HEADER: ProjectHeader = {
 
 const OFFICIAL_FORM_URL = "https://www.dol.gov/agencies/whd/forms/wh347";
 
+/** The Saturday that ends the most recent full or current workweek, in the user's own time zone. */
+function lastSaturday(): string {
+  const now = new Date();
+  const local = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  return addDays(local, -((now.getDay() + 1) % 7));
+}
+
+function hasTyping(crew: CrewEntry[]): boolean {
+  return crew.some((e) => e.name.trim() !== "" || e.hours.some((h) => h.trim() !== ""));
+}
+
 async function fetchBundledForm(): Promise<Uint8Array | null> {
   try {
     const res = await fetch(`${import.meta.env.BASE_URL}forms/wh347.pdf`);
@@ -80,8 +98,15 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [isSample, setIsSample] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [crew, setCrew] = useState<CrewEntry[]>(() => {
+    const saved = load<{ entries: CrewEntry[] }>("crew", { entries: [] }).entries;
+    return saved.length > 0 ? saved : [emptyEntry()];
+  });
 
   useEffect(() => save("header", header), [header]);
+  // Only the last four digits of an ID are ever written to storage.
+  useEffect(() => save("crew", { entries: crew.map((e) => ({ ...e, workerId: lastFour(e.workerId) })) }), [crew]);
   useEffect(() => save("rates", { text: ratesText }), [ratesText]);
   useEffect(() => {
     fetchBundledForm().then((bytes) => {
@@ -107,6 +132,7 @@ export function App() {
       setIsSample(isSample);
       track("File loaded", {
         sample: isSample,
+        from_form: typing,
         type: file.name.toLowerCase().endsWith(".xlsx") ? "xlsx" : "csv",
         rows: next.rows.length,
         columns_matched: missingRequired(nextMapping).length === 0,
@@ -128,6 +154,35 @@ export function App() {
     setRatesText(wd);
     await onFile(new File([csv], "sample-timecards.csv", { type: "text/csv" }), true);
     window.scrollTo({ top: 0 });
+  }
+
+  function startTyping() {
+    const returning = hasTyping(crew);
+    setSheet(null);
+    setFileError("");
+    setIsSample(false);
+    setTyping(true);
+    if (!header.weekEnding) setHeader((h) => ({ ...h, weekEnding: lastSaturday() }));
+    track("Form started", { returning });
+    window.scrollTo({ top: 0 });
+  }
+
+  /** Same crew and rates, hours cleared, the following week and the next payroll number. */
+  function startNextWeek() {
+    setCrew(clearHours(crew));
+    setHeader((h) => ({
+      ...h,
+      weekEnding: h.weekEnding ? addDays(h.weekEnding, 7) : lastSaturday(),
+      payrollNumber: /^\d+$/.test(h.payrollNumber.trim()) ? String(Number(h.payrollNumber) + 1) : h.payrollNumber,
+      isFinal: false,
+    }));
+    track("Next week started", { workers: crew.filter((e) => e.name.trim()).length });
+    window.scrollTo({ top: 0 });
+  }
+
+  function clearForm() {
+    if (!window.confirm("Clear every worker from the form? The report header is kept.")) return;
+    setCrew([emptyEntry()]);
   }
 
   async function onOfficialForm(file: File | undefined) {
@@ -207,13 +262,23 @@ export function App() {
   }, [sheet, mapping, missing, header.weekEnding]);
   const rates = useMemo(() => parseRates(ratesText), [ratesText]);
 
+  const weekDates = useMemo(() => (header.weekEnding ? workweek(header.weekEnding) : []), [header.weekEnding]);
+  const source = sheet ? "file" : typing ? "typed" : null;
+
   const result = useMemo(() => {
-    if (!sheet || missing.length > 0 || !header.weekEnding) return null;
+    if (!header.weekEnding) return null;
+    if (source === "typed") {
+      const typed = crewToLines(crew, weekDates);
+      const built = buildPayroll(header, typed.lines);
+      const issues: Issue[] = [...validateHeader(header), ...typed.issues, ...built.issues, ...validatePayroll(built.payroll, rates)];
+      return { payroll: built.payroll, issues };
+    }
+    if (!sheet || missing.length > 0) return null;
     const read = readTimecards(sheet, mapping);
     const built = buildPayroll(header, read.lines);
     const issues: Issue[] = [...validateHeader(header), ...read.issues, ...built.issues, ...validatePayroll(built.payroll, rates)];
     return { payroll: built.payroll, issues };
-  }, [sheet, mapping, header, rates, missing]);
+  }, [source, crew, weekDates, sheet, mapping, header, rates, missing]);
 
   const errors = result?.issues.filter((i) => i.level === "error").length ?? 0;
   const ready = result !== null && errors === 0 && result.payroll.rows.length > 0;
@@ -236,7 +301,7 @@ export function App() {
       const { renderPayrollPdf } = await import("../core/render/pdf");
       const bytes = await renderPayrollPdf(result.payroll, officialForm ?? undefined);
       download(bytes, `${baseName}.pdf`, "application/pdf");
-      track("PDF downloaded", { sample: isSample, workers: totals?.workers ?? 0 });
+      track("PDF downloaded", { sample: isSample, source: source ?? "file", workers: totals?.workers ?? 0 });
       if (!isSample) {
         adConversion();
         noteDownload();
@@ -246,15 +311,19 @@ export function App() {
     }
   }
 
-  const status = !sheet
+  const status = !source
     ? ""
-    : missing.length > 0
+    : source === "file" && missing.length > 0
       ? `Match ${missing.length === 1 ? "the last required column" : `${missing.length} required columns`} to continue.`
       : !result
         ? "Add the week ending date."
-        : errors > 0
-          ? `${errors} ${errors === 1 ? "problem" : "problems"} to fix before you can download.`
-          : `Ready to sign. Week ending ${shortDate(header.weekEnding)}, ${totals?.workers ?? 0} ${totals?.workers === 1 ? "worker" : "workers"}.`;
+        : result.payroll.rows.length === 0 && !result.issues.some((i) => i.code === "entry-incomplete")
+          ? hasTyping(crew) && source === "typed"
+            ? "Enter this week's hours."
+            : "Enter a worker and their hours to start."
+          : errors > 0
+            ? `${errors} ${errors === 1 ? "problem" : "problems"} to fix before you can download.`
+            : `Ready to sign. Week ending ${shortDate(header.weekEnding)}, ${totals?.workers ?? 0} ${totals?.workers === 1 ? "worker" : "workers"}.`;
 
   return (
     <>
@@ -276,47 +345,56 @@ export function App() {
         </div>
       </header>
 
-      {!sheet ? (
+      {!source ? (
         <main class="start" id="top">
           <h1>
-            Upload this week's payroll export. <br />
-            Get back a WH&#8209;347, ready to sign.
+            Fill in your WH&#8209;347 online. <br />
+            Download it ready to sign.
           </h1>
-
-          <p class="blank-form">
-            Just need the blank WH&#8209;347?{" "}
-            <a href={`${import.meta.env.BASE_URL}forms/wh347.pdf`} download="WH-347.pdf" onClick={() => track("Blank form downloaded")}>
-              Download the official DOL form (PDF)
-            </a>
-            . Or skip the retyping and drop your payroll export below.
+          <p class="lede">
+            The current January 2025 form. Overtime, fringe, gross and net pay are worked out as you type and checked against your wage
+            rates. Free, with no account to create.
           </p>
 
-          <label class="dropzone">
-            <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
-            <span class="dz-main">Choose your payroll file</span>
-            <span class="dz-sub">or drag it here. CSV or Excel, from Gusto, ADP, Paychex, QuickBooks or your own spreadsheet.</span>
-          </label>
+          <div class="start-actions">
+            <button type="button" class="primary big" onClick={startTyping}>
+              {hasTyping(crew) ? "Continue your payroll" : "Fill in the form"}
+            </button>
+            <p class="import-line">
+              or{" "}
+              <label class="link">
+                <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
+                import a payroll export
+              </label>{" "}
+              from Gusto, ADP, Paychex, QuickBooks or a spreadsheet
+            </p>
+          </div>
           {fileError && <p class="error-text">{fileError}</p>}
-          <p class="sample-line">
-            No file handy?{" "}
+
+          <p class="blank-form">
+            Just need the blank PDF?{" "}
+            <a href={`${import.meta.env.BASE_URL}forms/wh347.pdf`} download="WH-347.pdf" onClick={() => track("Blank form downloaded")}>
+              Download the official DOL form
+            </a>
+            . Want to see a finished one first?{" "}
             <button type="button" class="link" onClick={loadSample}>
               Open a sample payroll
-            </button>{" "}
-            for an electrical subcontractor with three workers.
+            </button>
+            .
           </p>
 
           <dl class="facts">
             <div>
-              <dt>Nothing to retype</dt>
-              <dd>Reads the export you already run payroll from. Free, with no account to create.</dd>
+              <dt>The arithmetic is done</dt>
+              <dd>Hours past 40 become overtime at time and a half. Fringe, gross and net pay add up as you type.</dd>
             </div>
             <div>
               <dt>Current form</dt>
               <dd>Matches the WH-347 revised in January 2025 (OMB 1235-0008, valid through January 2028), with DOL's own signing page.</dd>
             </div>
             <div>
-              <dt>Your file stays on your computer</dt>
-              <dd>It is read in this browser tab and never uploaded. Once this page has loaded it works with the internet switched off.</dd>
+              <dt>Next week starts filled in</dt>
+              <dd>Your crew, rates and project are kept in this browser, never uploaded. Next week you only enter the hours.</dd>
             </div>
           </dl>
 
@@ -333,7 +411,86 @@ export function App() {
             </figcaption>
           </figure>
         </main>
-      ) : (
+      ) : source === "typed" ? (
+        <main class="bench">
+          <div class="filebar">
+            <span>
+              <strong>Filling in the form</strong> <span class="muted">Saved in this browser as you type</span>
+            </span>
+            <label class="link">
+              <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
+              Import a payroll file instead
+            </label>
+            <button type="button" class="link" onClick={startNextWeek}>
+              Start next week's payroll
+            </button>
+            <button type="button" class="link quiet" onClick={clearForm}>
+              Clear the form
+            </button>
+          </div>
+          {fileError && <p class="error-text">{fileError}</p>}
+
+          <div class="layout">
+            <aside class="side">
+              <h2>Report header</h2>
+              <p class="side-note">Printed at the top of each page.</p>
+              <HeaderForm header={header} onChange={setHeader} />
+              <details class="extra" open={ratesText.trim() !== ""}>
+                <summary>Check pay against the wage determination</summary>
+                <p>Paste the rates from your wage determination on SAM.gov. Each worker's base rate and fringe are checked against it.</p>
+                <textarea
+                  rows={6}
+                  spellcheck={false}
+                  value={ratesText}
+                  placeholder={"ELECTRICIAN......................$ 48.10   21.30\nLABORER, GROUP 2.................$ 31.85   15.50"}
+                  onInput={(e) => setRatesText(e.currentTarget.value)}
+                />
+                {ratesText.trim() !== "" && (
+                  <p class="small muted">
+                    Read {rates.length} {rates.length === 1 ? "classification" : "classifications"}:{" "}
+                    {rates.map((r) => r.classification).join("; ")}
+                  </p>
+                )}
+              </details>
+            </aside>
+
+            <section class="sheet-area">
+              <h2 class="area-title">Workers this week</h2>
+              {weekDates.length === 0 ? (
+                <p class="muted">Set the week ending date in the report header to enter hours.</p>
+              ) : (
+                <CrewForm crew={crew} header={header} weekDates={weekDates} onChange={setCrew} />
+              )}
+              {result && totals && hasTyping(crew) && (
+                <div class="typed-result">
+                  <h2 class="area-title">On the form</h2>
+                  <p class="summary">
+                    <span>
+                      <b>{totals.workers}</b> {totals.workers === 1 ? "worker" : "workers"}
+                    </span>
+                    <span>
+                      <b>{formatHours(totals.hours)}</b> hours
+                      {totals.overtime > 0 && (
+                        <>
+                          , <b class="ot">{formatHours(totals.overtime)}</b> overtime
+                        </>
+                      )}
+                    </span>
+                    <span>
+                      <b>${formatMoney(totals.gross)}</b> gross on this project
+                    </span>
+                    <span>
+                      <b>${formatMoney(totals.net)}</b> net pay
+                    </span>
+                  </p>
+                  <IssueList issues={result.issues} />
+                  {result.payroll.rows.length > 0 && <PayrollPreview payroll={result.payroll} />}
+                </div>
+              )}
+            </section>
+          </div>
+        </main>
+      ) : sheet ? (
         <main class="bench">
           <div class="filebar">
             <span>
@@ -343,6 +500,9 @@ export function App() {
               <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
               Use a different file
             </label>
+            <button type="button" class="link" onClick={startTyping}>
+              Fill in the form by hand instead
+            </button>
           </div>
 
           {fileError && <p class="error-text">{fileError}</p>}
@@ -434,9 +594,9 @@ export function App() {
             </section>
           </div>
         </main>
-      )}
+      ) : null}
 
-      {sheet && (
+      {source && (
         <div class="dock">
           <div class="dock-inner">
             <p class={`dock-status${ready ? " ready" : ""}`}>{status}</p>
@@ -447,7 +607,7 @@ export function App() {
               onClick={() => {
                 if (!result) return;
                 download(renderPayrollCsv(result.payroll), `${baseName}.csv`, "text/csv");
-                track("CSV downloaded", { sample: isSample });
+                track("CSV downloaded", { sample: isSample, source: source ?? "file" });
               }}
             >
               CSV
@@ -462,10 +622,11 @@ export function App() {
       <section id="how" class="notes">
         <h2>How it works</h2>
         <dl>
-          <dt>Your file stays here</dt>
+          <dt>Nothing is uploaded</dt>
           <dd>
-            The payroll file is read in this browser tab and never uploaded. Only the last four digits of each Social Security number are
-            printed. The report header and your column matching are remembered in this browser, so next week's payroll takes a minute.
+            What you type, and any payroll file you import, stays in this browser tab. Only the last four digits of each Social Security
+            number are kept or printed. Your crew, report header and column matching are remembered in this browser, so next week you only
+            enter the hours. Clear the form to remove them.
           </dd>
           <dt>Overtime</dt>
           <dd>
@@ -513,13 +674,14 @@ export function App() {
               <h3>Free</h3>
               <p class="price">$0</p>
               <ul>
-                <li>Upload, check and download as often as you like</li>
+                <li>Fill in the form or import a payroll file, as often as you like</li>
                 <li>PDF with DOL's signing page, plus CSV</li>
                 <li>Overtime, wage rate and SSN checks</li>
+                <li>Your crew remembered in this browser for next week</li>
               </ul>
-              <a class="plan-action" href="#top">
-                Upload a payroll
-              </a>
+              <button type="button" class="plan-action link" onClick={startTyping}>
+                Fill in the form
+              </button>
             </div>
             <div class="plan">
               <h3>Pro</h3>
@@ -571,9 +733,9 @@ export function App() {
         <dl>
           <dt>How is this different from DOL's fillable WH-347?</dt>
           <dd>
-            The Department of Labor's web form is free and good, but you type every worker, day and rate by hand. EasyWH347 reads the
-            payroll export you already have, so a ten-person crew takes a minute instead of an hour, and it remembers your setup for next
-            week.
+            Both are free and both follow the same form. Here, hours past 40 are moved to overtime and fringe, gross and net pay are added
+            up as you type; pay can be checked against your wage determination; your crew is still filled in next week; and if you run
+            payroll in Gusto, ADP, QuickBooks or a spreadsheet, you can import the export instead of typing.
           </dd>
           <dt>Which payroll systems work?</dt>
           <dd>
@@ -584,8 +746,8 @@ export function App() {
           <dd>
             Three years after all the work on the prime contract is finished, together with the time records, pay records and workers'
             contact details behind them. The contracting agency or the Department of Labor can ask for them at any point in that period,
-            with or without an investigation. The free version doesn't store anything, so keep each PDF and CSV you download; Pro will keep
-            them for you.
+            with or without an investigation. The free version keeps only the current week in your browser, so keep each PDF and CSV you
+            download; Pro will keep every week for you.
           </dd>
           <dt>Is the older WH-347 still accepted?</dt>
           <dd>
@@ -608,7 +770,7 @@ export function App() {
 
       {dragging && (
         <div class="drop-overlay" aria-hidden="true">
-          <p>{sheet ? `Drop to replace ${fileName}` : "Drop your payroll file to load it"}</p>
+          <p>{sheet ? `Drop to replace ${fileName}` : "Drop your payroll export to import it"}</p>
         </div>
       )}
 

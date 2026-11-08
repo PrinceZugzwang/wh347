@@ -182,11 +182,42 @@ h1 {
   max-width: 820px;
 }
 
-.blank-form {
-  margin: 0 0 28px;
-  max-width: 820px;
-  font-size: 17px;
+.lede {
+  margin: 0 0 30px;
+  max-width: 700px;
+  font-size: 18px;
   line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.start-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  max-width: 820px;
+  padding: 24px 0;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+button.primary.big {
+  font-size: 17px;
+  padding: 15px 30px;
+}
+
+.import-line {
+  margin: 0;
+  max-width: 440px;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.blank-form {
+  margin: 18px 0 0;
+  max-width: 820px;
+  font-size: 15px;
+  line-height: 1.6;
   color: var(--ink-2);
 }
 
@@ -595,6 +626,138 @@ table {
   margin-top: 16px;
 }
 
+/* Typing the payroll in. Each worker is a strip of ruled cells, in the
+   order of a line on the printed form: who, the seven days, rate and fringe. */
+
+.area-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.typed-result {
+  margin-top: 44px;
+}
+
+.crew {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.entry-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+
+.entry-head h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.entry-no {
+  font: 500 12px var(--mono);
+  color: var(--ink-3);
+}
+
+button.link.quiet {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+button.link.quiet:hover {
+  color: var(--red);
+}
+
+.cells.who {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1.4fr);
+}
+
+.cells.who .w-level {
+  grid-column: 1 / -1;
+}
+
+.cells.week {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) repeat(3, minmax(0, 1.4fr));
+  border-top: 0;
+}
+
+.cell.day > span,
+.cell.day input {
+  text-align: center;
+}
+
+.cell.money input {
+  text-align: right;
+}
+
+.cell.money > span {
+  text-align: right;
+}
+
+.cell select {
+  width: 100%;
+  border: 0;
+  padding: 2px 0 0;
+  margin-left: -3px;
+  background: transparent;
+  font: 500 15px var(--sans);
+  color: var(--ink);
+  outline: none;
+}
+
+.more {
+  margin-top: 4px;
+}
+
+.more summary {
+  padding: 4px 0;
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.cells.deductions {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 2fr);
+  margin-top: 4px;
+}
+
+.entry-sum {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.add-worker {
+  width: 100%;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--rule);
+  background: none;
+  font: 600 15px var(--sans);
+  color: var(--blue);
+  text-align: left;
+  cursor: pointer;
+}
+
+.add-worker::before {
+  content: "+";
+  display: inline-block;
+  width: 1.3em;
+  font-weight: 500;
+}
+
+.add-worker:hover {
+  color: var(--blue-dark);
+}
+
 /* Bottom bar with the one thing to do next */
 
 .dock {
@@ -736,10 +899,12 @@ button.primary:disabled {
   margin-top: 4px;
 }
 
-.plan-action {
+.plan-action,
+button.plan-action {
   margin-top: auto;
   font-weight: 600;
   font-size: 15px;
+  align-self: flex-start;
 }
 
 .plan-note {
@@ -883,9 +1048,64 @@ button.primary:disabled {
     margin-bottom: 16px;
   }
 
-  .blank-form {
+  .lede {
     font-size: 16px;
     margin-bottom: 22px;
+  }
+
+  .start-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cells.who {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .cells.who .w-name,
+  .cells.who .w-class {
+    grid-column: span 2;
+  }
+
+  /* Pair the two short cells on one row: name, then ID and status, then classification. */
+  .cells.who .w-status {
+    order: 1;
+  }
+
+  .cells.who .w-class {
+    order: 2;
+  }
+
+  .cells.who .w-level {
+    order: 3;
+  }
+
+  .cells.week {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .cells.week .rate {
+    grid-column: span 3;
+  }
+
+  .cells.week .fringe {
+    grid-column: span 2;
+  }
+
+  .cell.day {
+    padding: 6px 2px 5px;
+  }
+
+  .cell.day > span {
+    font-size: 11px;
+  }
+
+  .cells.deductions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .cells.deductions .wide {
+    grid-column: span 2;
   }
 
   h1 br {
