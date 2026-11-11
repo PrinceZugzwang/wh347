@@ -82,3 +82,73 @@ footer p {
   padding-top: 16px;
   border-top: 1px solid var(--rule);
 }
+
+/* Landing pages (Excel template, primes): a lede, one clear action, then reference. */
+
+.lede {
+  margin: 10px 0 0;
+  font-size: 18px;
+  color: var(--ink-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 22px;
+  margin: 28px 0 8px;
+  padding: 22px 0;
+  border-top: 1.5px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+.button {
+  display: inline-block;
+  padding: 13px 24px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--blue);
+  color: #fff;
+  font:
+    600 16px "Public Sans",
+    system-ui,
+    sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #183f84;
+}
+
+.actions p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  gap: 8px 20px;
+  margin: 12px 0 0;
+}
+
+.columns dt {
+  font-weight: 600;
+}
+
+.columns dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+@media (max-width: 560px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .columns dd {
+    margin-bottom: 10px;
+  }
+}

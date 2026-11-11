@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import type { Cell } from "../core";
+import { type Cell, readWorkbook } from "../core";
 
 export async function readGrid(file: File): Promise<Cell[][]> {
   const name = file.name.toLowerCase();
@@ -16,4 +16,18 @@ export async function readGrid(file: File): Promise<Cell[][]> {
     throw new Error(`Couldn't read ${file.name}: ${parsed.errors[0].message}`);
   }
   return parsed.data;
+}
+
+/**
+ * If the file is an EasyWH347 payroll workbook (the Excel template or a week
+ * downloaded from the form), returns the header and crew in it; otherwise null.
+ */
+export async function readPayrollWorkbook(file: File) {
+  if (!file.name.toLowerCase().endsWith(".xlsx")) return null;
+  const { default: readXlsxFile } = await import("read-excel-file/browser");
+  for (const sheet of await readXlsxFile(file)) {
+    const found = readWorkbook(sheet.data as Cell[][]);
+    if (found) return found;
+  }
+  return null;
 }

@@ -20,7 +20,8 @@
     "papaparse": "^5.7.0",
     "pdf-lib": "^1.17.1",
     "preact": "^11.1.1",
-    "read-excel-file": "^9.3.14"
+    "read-excel-file": "^9.3.14",
+    "write-excel-file": "^4.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

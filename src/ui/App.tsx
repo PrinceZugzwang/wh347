@@ -34,7 +34,8 @@ import { IssueList } from "./IssueList";
 import { MappingTable } from "./MappingTable";
 import { PayrollPreview } from "./PayrollPreview";
 import { Mark } from "./Mark";
-import { readGrid } from "./read-file";
+import { downloadWorkbook } from "./excel";
+import { readGrid, readPayrollWorkbook } from "./read-file";
 import { load, save } from "./storage";
 
 const EMPTY_HEADER: ProjectHeader = {
@@ -121,6 +122,18 @@ export function App() {
     if (!file) return;
     setFileError("");
     try {
+      // An EasyWH347 workbook (the Excel template or a week saved from the form) goes straight into the form.
+      const workbook = isSample ? null : await readPayrollWorkbook(file);
+      if (workbook) {
+        setHeader((h) => ({ ...h, ...workbook.header, weekEnding: workbook.header.weekEnding ?? (h.weekEnding || lastSaturday()) }));
+        setCrew(workbook.crew.length > 0 ? workbook.crew : [emptyEntry()]);
+        setSheet(null);
+        setIsSample(false);
+        setTyping(true);
+        track("Excel imported", { workers: workbook.crew.length, from_form: typing });
+        window.scrollTo({ top: 0 });
+        return;
+      }
       const grid: Cell[][] = await readGrid(file);
       const next = toSheet(grid);
       const saved = load<{ headers: string[]; mapping: ColumnMapping }>("mapping", { headers: [], mapping: {} });
@@ -395,7 +408,9 @@ export function App() {
             <a href={`${import.meta.env.BASE_URL}forms/wh347.pdf`} download="WH-347.pdf" onClick={() => track("Blank form downloaded")}>
               Download the official DOL form
             </a>
-            . Want to see a finished one first?{" "}
+            . Rather work in Excel?{" "}
+            <a href={`${import.meta.env.BASE_URL}certified-payroll-excel-template.html`}>Get the free certified payroll Excel template</a>.
+            Want to see a finished one first?{" "}
             <button type="button" class="link" onClick={loadSample}>
               Open a sample payroll
             </button>
@@ -440,6 +455,16 @@ export function App() {
               <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
               Import a payroll file instead
             </label>
+            <button
+              type="button"
+              class="link"
+              onClick={() => {
+                void downloadWorkbook(`${baseName}.xlsx`, header, crew, weekDates);
+                track("Excel downloaded", { workers: crew.filter((e) => e.name.trim()).length });
+              }}
+            >
+              Save this week as Excel
+            </button>
             <button type="button" class="link" onClick={startNextWeek}>
               Start next week's payroll
             </button>
@@ -797,11 +822,13 @@ export function App() {
         <div class="foot-links">
           <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a>
           <a href={`${import.meta.env.BASE_URL}terms.html`}>Terms</a>
+          <a href={`${import.meta.env.BASE_URL}certified-payroll-excel-template.html`}>Excel template</a>
+          <a href={`${import.meta.env.BASE_URL}primes.html`}>For prime contractors</a>
           <a href="mailto:support@easywh347.com">support@easywh347.com</a>
         </div>
         <p>
           EasyWH347 is an independent tool and is not affiliated with the U.S. Department of Labor. It prepares a report for you to review;
-          the contractor signing the payroll is responsible for its accuracy. Last updated October 2026.
+          the contractor signing the payroll is responsible for its accuracy. Last updated November 2026.
         </p>
       </footer>
     </>
