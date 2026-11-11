@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import {
   buildPayroll,
   type Cell,
@@ -281,6 +281,25 @@ export function App() {
   }, [source, crew, weekDates, sheet, mapping, header, rates, missing]);
 
   const errors = result?.issues.filter((i) => i.level === "error").length ?? 0;
+
+  // How far people get in the typed form, counted once per step per visit,
+  // so drop-off shows up as the gap between steps.
+  const reached = useRef(new Set<string>());
+  useEffect(() => {
+    if (source !== "typed" || !result) return;
+    const rows = result.payroll.rows.length;
+    const steps: [string, boolean][] = [
+      ["header filled", validateHeader(header).every((i) => i.level !== "error")],
+      ["first worker", rows > 0],
+      ["ready to download", rows > 0 && errors === 0],
+    ];
+    for (const [step, done] of steps) {
+      if (done && !reached.current.has(step)) {
+        reached.current.add(step);
+        track("Form progress", { step });
+      }
+    }
+  }, [source, result, header, errors]);
   const ready = result !== null && errors === 0 && result.payroll.rows.length > 0;
   const totals = result
     ? {

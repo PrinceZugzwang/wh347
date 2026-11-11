@@ -23,15 +23,23 @@ export function track(event: string, props?: Props): void {
 /**
  * The Google Ads tag only loads for visitors who arrived from one of our ads
  * (the click adds a gclid to the URL), so other visitors get no ad cookies.
+ * The arrival is remembered for 90 days, the conversion window, so someone who
+ * clicks an ad and comes back later to finish their payroll is still counted.
  */
+const AD_VISIT_KEY = "wh347:from-ad";
+const AD_WINDOW_MS = 90 * 86_400_000;
+
 export function initAdTag(): void {
   const params = new URLSearchParams(window.location.search);
   let fromAd = params.has("gclid") || params.has("gbraid") || params.has("wbraid");
   try {
-    if (fromAd) sessionStorage.setItem("wh347:from-ad", "1");
-    else fromAd = sessionStorage.getItem("wh347:from-ad") === "1";
+    if (fromAd) localStorage.setItem(AD_VISIT_KEY, String(Date.now()));
+    else {
+      const since = Number(localStorage.getItem(AD_VISIT_KEY) ?? 0);
+      fromAd = since > 0 && Date.now() - since < AD_WINDOW_MS;
+    }
   } catch {
-    // Without session storage only the landing page view can be attributed.
+    // Without storage only the landing visit can be attributed.
   }
   if (!fromAd) return;
 
