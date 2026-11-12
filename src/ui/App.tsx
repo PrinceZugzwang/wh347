@@ -302,6 +302,7 @@ export function App() {
     if (source !== "typed" || !result) return;
     const rows = result.payroll.rows.length;
     const steps: [string, boolean][] = [
+      ["started typing", hasTyping(crew)],
       ["header filled", validateHeader(header).every((i) => i.level !== "error")],
       ["first worker", rows > 0],
       ["ready to download", rows > 0 && errors === 0],
@@ -312,8 +313,21 @@ export function App() {
         track("Form progress", { step });
       }
     }
-  }, [source, result, header, errors]);
+  }, [source, result, header, errors, crew]);
   const ready = result !== null && errors === 0 && result.payroll.rows.length > 0;
+  // In the typed form the report details come after the crew. When they are the
+  // only thing missing, the download button takes people to them instead of
+  // sitting disabled.
+  const headerErrors = validateHeader(header).filter((i) => i.level === "error").length;
+  const needsDetails = source === "typed" && result !== null && result.payroll.rows.length > 0 && errors > 0 && errors === headerErrors;
+
+  function goToDetails() {
+    const details = document.getElementById("report-details");
+    details?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const empty = [...(details?.querySelectorAll<HTMLInputElement>("input[type=text]") ?? [])].find((i) => i.value.trim() === "");
+    window.setTimeout(() => empty?.focus({ preventScroll: true }), 400);
+    track("Form progress", { step: "asked for details" });
+  }
   const totals = result
     ? {
         workers: new Set(result.payroll.rows.map((r) => r.entryNumber)).size,
@@ -353,9 +367,11 @@ export function App() {
           ? hasTyping(crew) && source === "typed"
             ? "Enter this week's hours."
             : "Enter a worker and their hours to start."
-          : errors > 0
-            ? `${errors} ${errors === 1 ? "problem" : "problems"} to fix before you can download.`
-            : `Ready to sign. Week ending ${shortDate(header.weekEnding)}, ${totals?.workers ?? 0} ${totals?.workers === 1 ? "worker" : "workers"}.`;
+          : needsDetails
+            ? `Hours and pay are worked out. Add the report details to download.`
+            : errors > 0
+              ? `${errors} ${errors === 1 ? "problem" : "problems"} to fix before you can download.`
+              : `Ready to sign. Week ending ${shortDate(header.weekEnding)}, ${totals?.workers ?? 0} ${totals?.workers === 1 ? "worker" : "workers"}.`;
 
   return (
     <>
@@ -474,65 +490,70 @@ export function App() {
           </div>
           {fileError && <p class="error-text">{fileError}</p>}
 
-          <div class="layout">
-            <aside class="side">
-              <h2>Report header</h2>
-              <p class="side-note">Printed at the top of each page.</p>
-              <HeaderForm header={header} onChange={setHeader} />
-              <details class="extra" open={ratesText.trim() !== ""}>
-                <summary>Check pay against the wage determination</summary>
-                <p>Paste the rates from your wage determination on SAM.gov. Each worker's base rate and fringe are checked against it.</p>
-                <textarea
-                  rows={6}
-                  spellcheck={false}
-                  value={ratesText}
-                  placeholder={"ELECTRICIAN......................$ 48.10   21.30\nLABORER, GROUP 2.................$ 31.85   15.50"}
-                  onInput={(e) => setRatesText(e.currentTarget.value)}
-                />
-                {ratesText.trim() !== "" && (
-                  <p class="small muted">
-                    Read {rates.length} {rates.length === 1 ? "classification" : "classifications"}:{" "}
-                    {rates.map((r) => r.classification).join("; ")}
-                  </p>
-                )}
-              </details>
-            </aside>
-
-            <section class="sheet-area">
+          <section class="crew-area">
+            <div class="area-head">
               <h2 class="area-title">Workers this week</h2>
-              {weekDates.length === 0 ? (
-                <p class="muted">Set the week ending date in the report header to enter hours.</p>
-              ) : (
-                <CrewForm crew={crew} header={header} weekDates={weekDates} onChange={setCrew} />
+              <label class="week-pick">
+                Week ending
+                <input type="date" value={header.weekEnding} onInput={(e) => setHeader({ ...header, weekEnding: e.currentTarget.value })} />
+              </label>
+            </div>
+            {weekDates.length === 0 ? (
+              <p class="muted">Pick the Saturday that ends the week to enter hours.</p>
+            ) : (
+              <CrewForm crew={crew} header={header} weekDates={weekDates} onChange={setCrew} />
+            )}
+          </section>
+
+          <section class="details" id="report-details">
+            <h2 class="area-title">Report details</h2>
+            <p class="side-note">Printed at the top of the form. Needed before you download, and remembered for next week.</p>
+            <HeaderForm header={header} onChange={setHeader} hideWeekEnding />
+            <details class="extra" open={ratesText.trim() !== ""}>
+              <summary>Check pay against the wage determination</summary>
+              <p>Paste the rates from your wage determination on SAM.gov. Each worker's base rate and fringe are checked against it.</p>
+              <textarea
+                rows={6}
+                spellcheck={false}
+                value={ratesText}
+                placeholder={"ELECTRICIAN......................$ 48.10   21.30\nLABORER, GROUP 2.................$ 31.85   15.50"}
+                onInput={(e) => setRatesText(e.currentTarget.value)}
+              />
+              {ratesText.trim() !== "" && (
+                <p class="small muted">
+                  Read {rates.length} {rates.length === 1 ? "classification" : "classifications"}:{" "}
+                  {rates.map((r) => r.classification).join("; ")}
+                </p>
               )}
-              {result && totals && hasTyping(crew) && (
-                <div class="typed-result">
-                  <h2 class="area-title">On the form</h2>
-                  <p class="summary">
-                    <span>
-                      <b>{totals.workers}</b> {totals.workers === 1 ? "worker" : "workers"}
-                    </span>
-                    <span>
-                      <b>{formatHours(totals.hours)}</b> hours
-                      {totals.overtime > 0 && (
-                        <>
-                          , <b class="ot">{formatHours(totals.overtime)}</b> overtime
-                        </>
-                      )}
-                    </span>
-                    <span>
-                      <b>${formatMoney(totals.gross)}</b> gross on this project
-                    </span>
-                    <span>
-                      <b>${formatMoney(totals.net)}</b> net pay
-                    </span>
-                  </p>
-                  <IssueList issues={result.issues} />
-                  {result.payroll.rows.length > 0 && <PayrollPreview payroll={result.payroll} />}
-                </div>
-              )}
-            </section>
-          </div>
+            </details>
+          </section>
+
+          {result && totals && hasTyping(crew) && (
+            <div class="typed-result">
+              <h2 class="area-title">On the form</h2>
+              <p class="summary">
+                <span>
+                  <b>{totals.workers}</b> {totals.workers === 1 ? "worker" : "workers"}
+                </span>
+                <span>
+                  <b>{formatHours(totals.hours)}</b> hours
+                  {totals.overtime > 0 && (
+                    <>
+                      , <b class="ot">{formatHours(totals.overtime)}</b> overtime
+                    </>
+                  )}
+                </span>
+                <span>
+                  <b>${formatMoney(totals.gross)}</b> gross on this project
+                </span>
+                <span>
+                  <b>${formatMoney(totals.net)}</b> net pay
+                </span>
+              </p>
+              <IssueList issues={result.issues} />
+              {result.payroll.rows.length > 0 && <PayrollPreview payroll={result.payroll} />}
+            </div>
+          )}
         </main>
       ) : sheet ? (
         <main class="bench">
@@ -656,9 +677,15 @@ export function App() {
             >
               CSV
             </button>
-            <button type="button" class="primary" disabled={!ready || busy} onClick={onDownloadPdf}>
-              {busy ? "Preparing PDF" : "Download PDF"}
-            </button>
+            {needsDetails ? (
+              <button type="button" class="primary" onClick={goToDetails}>
+                Add report details
+              </button>
+            ) : (
+              <button type="button" class="primary" disabled={!ready || busy} onClick={onDownloadPdf}>
+                {busy ? "Preparing PDF" : "Download PDF"}
+              </button>
+            )}
           </div>
         </div>
       )}

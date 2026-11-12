@@ -3,6 +3,8 @@ import type { ProjectHeader } from "../core";
 interface Props {
   header: ProjectHeader;
   onChange: (header: ProjectHeader) => void;
+  /** The typed form asks for the week first, next to the crew, so it is left out here. */
+  hideWeekEnding?: boolean;
 }
 
 type TextKey =
@@ -25,21 +27,23 @@ const FIELDS: { key: TextKey; label: string; span?: 2; placeholder?: string }[] 
 ];
 
 /** The report header, laid out as ruled cells like the header block of the printed form. */
-export function HeaderForm({ header, onChange }: Props) {
+export function HeaderForm({ header, onChange, hideWeekEnding = false }: Props) {
   const set = <K extends keyof ProjectHeader>(key: K, value: ProjectHeader[K]) => onChange({ ...header, [key]: value });
 
   return (
     <div class="cells">
       {FIELDS.map(({ key, label, span, placeholder }) => (
-        <label class={span ? "cell span-2" : "cell"} key={key}>
+        <label class={span || (hideWeekEnding && key === "payrollNumber") ? "cell span-2" : "cell"} key={key}>
           <span>{label}</span>
           <input type="text" value={header[key]} placeholder={placeholder} onInput={(e) => set(key, e.currentTarget.value)} />
         </label>
       ))}
-      <label class="cell">
-        <span>Week ending</span>
-        <input type="date" value={header.weekEnding} onInput={(e) => set("weekEnding", e.currentTarget.value)} />
-      </label>
+      {!hideWeekEnding && (
+        <label class="cell">
+          <span>Week ending</span>
+          <input type="date" value={header.weekEnding} onInput={(e) => set("weekEnding", e.currentTarget.value)} />
+        </label>
+      )}
       <div class="cell span-2 choices" role="group" aria-label="Your role on the project">
         <span>You are the</span>
         <div class="opts">

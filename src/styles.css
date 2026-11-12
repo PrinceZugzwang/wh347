@@ -1147,3 +1147,45 @@ button.plan-action {
     font-size: 13px;
   }
 }
+
+/* Typed form: the crew comes first, full width; the report details follow. */
+
+.crew-area,
+.details {
+  margin-top: 26px;
+}
+
+.area-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 20px;
+}
+
+.week-pick {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.week-pick input {
+  font: 500 15px var(--sans);
+  padding: 4px 6px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--ink);
+}
+
+.details {
+  max-width: 760px;
+  padding-top: 26px;
+  border-top: 1px solid var(--rule);
+}
+
+.details .side-note {
+  margin-top: -6px;
+}
