@@ -860,6 +860,7 @@ export function App() {
           <a href={`${import.meta.env.BASE_URL}privacy.html`}>Privacy</a>
           <a href={`${import.meta.env.BASE_URL}terms.html`}>Terms</a>
           <a href={`${import.meta.env.BASE_URL}certified-payroll-excel-template.html`}>Excel template</a>
+          <a href={`${import.meta.env.BASE_URL}payroll.html`}>Payroll (early access)</a>
           <a href={`${import.meta.env.BASE_URL}primes.html`}>For prime contractors</a>
           <a href={`${import.meta.env.BASE_URL}dol-fillable-wh347-vs-easywh347.html`}>vs DOL's fillable form</a>
           <a href={`${import.meta.env.BASE_URL}lcptracker-vs-easywh347.html`}>vs LCPtracker</a>
