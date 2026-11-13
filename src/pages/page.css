@@ -142,7 +142,75 @@ footer p {
   color: var(--ink-2);
 }
 
+/* Comparison pages: a plain ruled table, the source under it, and the switching offer. */
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 12px 0 0;
+}
+
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.compare th,
+.compare td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.compare thead th {
+  border-bottom: 1.5px solid var(--ink);
+  font-size: 14px;
+}
+
+.compare tbody th {
+  width: 36%;
+  font-weight: 600;
+}
+
+.compare td {
+  color: var(--ink-2);
+}
+
+.compare td.unknown {
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.source {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.switch {
+  margin: 40px 0 0;
+  padding: 4px 0 0;
+  border-top: 1.5px solid var(--ink);
+}
+
+.switch h2 {
+  margin-top: 18px;
+}
+
+.switch-link {
+  font-weight: 600;
+}
+
 @media (max-width: 560px) {
+  .compare {
+    font-size: 14px;
+  }
+
+  .compare tbody th {
+    width: 40%;
+  }
+
   .columns {
     grid-template-columns: minmax(0, 1fr);
     gap: 2px;

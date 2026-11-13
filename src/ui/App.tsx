@@ -776,6 +776,16 @@ export function App() {
                 Join the early list
               </a>
               <p class="plan-note">In development. Join the list and we'll email you when it opens.</p>
+              <p class="plan-note">
+                Paying for certified payroll software now?{" "}
+                <a
+                  href="mailto:support@easywh347.com?subject=Switching%20to%20EasyWH347%20Pro&body=Attached%20is%20a%20recent%20invoice%20from%20the%20certified%20payroll%20software%20I%20use%20now."
+                  onClick={() => track("Switch offer", { source: "pricing" })}
+                >
+                  Send us a recent invoice
+                </a>{" "}
+                and Pro is free for your first 12 months.
+              </p>
             </div>
             <div class="plan">
               <h3>Done for you</h3>
@@ -804,9 +814,9 @@ export function App() {
         <dl>
           <dt>How is this different from DOL's fillable WH-347?</dt>
           <dd>
-            Both are free and both follow the same form. Here, hours past 40 are moved to overtime and fringe, gross and net pay are added
-            up as you type; pay can be checked against your wage determination; your crew is still filled in next week; and if you run
-            payroll in Gusto, ADP, QuickBooks or a spreadsheet, you can import the export instead of typing.
+            Both are free, follow the same form and work out the pay for you. Here, pay can also be checked against your wage determination,
+            your crew is still filled in next week, and if you run payroll in Gusto, ADP, QuickBooks or a spreadsheet, you can import the
+            export instead of typing. <a href={`${import.meta.env.BASE_URL}dol-fillable-wh347-vs-easywh347.html`}>See them side by side</a>.
           </dd>
           <dt>Which payroll systems work?</dt>
           <dd>
@@ -851,6 +861,8 @@ export function App() {
           <a href={`${import.meta.env.BASE_URL}terms.html`}>Terms</a>
           <a href={`${import.meta.env.BASE_URL}certified-payroll-excel-template.html`}>Excel template</a>
           <a href={`${import.meta.env.BASE_URL}primes.html`}>For prime contractors</a>
+          <a href={`${import.meta.env.BASE_URL}dol-fillable-wh347-vs-easywh347.html`}>vs DOL's fillable form</a>
+          <a href={`${import.meta.env.BASE_URL}lcptracker-vs-easywh347.html`}>vs LCPtracker</a>
           <a href="mailto:support@easywh347.com">support@easywh347.com</a>
         </div>
         <p>

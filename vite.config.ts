@@ -7,7 +7,15 @@ export default defineConfig({
   plugins: [preact()],
   build: {
     rollupOptions: {
-      input: ["index.html", "privacy.html", "terms.html", "certified-payroll-excel-template.html", "primes.html"],
+      input: [
+        "index.html",
+        "privacy.html",
+        "terms.html",
+        "certified-payroll-excel-template.html",
+        "primes.html",
+        "dol-fillable-wh347-vs-easywh347.html",
+        "lcptracker-vs-easywh347.html",
+      ],
     },
   },
   test: {
