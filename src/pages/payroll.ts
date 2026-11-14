@@ -15,8 +15,6 @@ import { initAdTag, track } from "../ui/analytics";
 initAdTag();
 
 const PER_CHECK = 3;
-const LICENSE = 390;
-const LICENSE_PER_CHECK = 1.5;
 const WEEKS_PER_MONTH = 52 / 12;
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
@@ -45,15 +43,9 @@ document.getElementById("quote")?.addEventListener("submit", (e) => {
     return;
   }
   const checks = workers * WEEKS_PER_MONTH;
-  const payg = checks * PER_CHECK;
-  const licensed = LICENSE / 12 + checks * LICENSE_PER_CHECK;
-  const best = Math.min(payg, licensed);
   quoteOut.textContent =
-    `About ${money(best)} a month for ${workers} worker${workers === 1 ? "" : "s"} paid weekly ` +
-    `(${Math.round(checks)} paychecks)` +
-    (licensed < payg
-      ? `, on the yearly license ($390 a year plus about $1.50 a paycheck). Pay as you go would be about ${money(payg)}. `
-      : ", pay as you go, with nothing in months you don't run payroll. ") +
+    `About ${money(checks * PER_CHECK)} a month for ${workers} worker${workers === 1 ? "" : "s"} paid weekly ` +
+    `(${Math.round(checks)} paychecks), with nothing in months you don't run payroll. ` +
     "Certified payroll for every project included.";
   track("Payroll price checked", { workers: bucket(workers) });
   const early = document.getElementById("early-workers") as HTMLInputElement | null;
