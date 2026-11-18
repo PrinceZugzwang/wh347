@@ -433,6 +433,14 @@ export function App() {
             .
           </p>
 
+          <p class="payroll-line">
+            <b>Rather not do payroll at all?</b> We're opening payroll for prevailing-wage crews with certified payroll included, about $3 a
+            paycheck and nothing between jobs.{" "}
+            <a href={`${import.meta.env.BASE_URL}payroll.html`} onClick={() => track("Payroll cta", { where: "start" })}>
+              Get early access
+            </a>
+          </p>
+
           <dl class="facts">
             <div>
               <dt>The arithmetic is done</dt>

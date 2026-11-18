@@ -226,6 +226,28 @@ button.primary.big {
   font-weight: 600;
 }
 
+/* The payroll demand test: one line under the start actions, same weight as the rest of the page. */
+.payroll-line {
+  margin: 22px 0 0;
+  padding: 14px 18px;
+  max-width: 820px;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.payroll-line b {
+  color: var(--ink);
+}
+
+.payroll-line a {
+  color: var(--blue);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .dropzone {
   position: relative;
   display: flex;
