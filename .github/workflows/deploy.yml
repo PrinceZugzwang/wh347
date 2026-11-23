@@ -30,9 +30,7 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /
-          # Pro (accounts and saved weeks). Set these as repository variables; without them the site is the free form only.
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          # The Supabase project is set in .env.production; the Pro payment link comes from a repository variable.
           VITE_STRIPE_PRO_LINK: ${{ vars.VITE_STRIPE_PRO_LINK }}
       - name: Warn if the official form is missing
         run: test -f dist/forms/wh347.pdf || echo "::warning::public/forms/wh347.pdf is missing; users will be asked to add the form themselves."

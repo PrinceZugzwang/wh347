@@ -146,3 +146,10 @@ create policy "pro changes weeks" on public.weeks
 drop policy if exists "pro deletes weeks" on public.weeks;
 create policy "pro deletes weeks" on public.weeks
   for delete to authenticated using (user_id = auth.uid() and public.is_pro());
+
+-- Table access for signed-in users (row-level security above still decides which rows).
+grant usage on schema public to authenticated;
+grant select on public.profiles to authenticated;
+grant select, insert, update, delete on public.projects to authenticated;
+grant select, insert, update, delete on public.weeks to authenticated;
+grant execute on function public.is_pro() to authenticated;
