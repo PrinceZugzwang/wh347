@@ -17,6 +17,7 @@ function looksLikeName(line) {
 function clean(name) {
   return name
     .replace(/\s+/g, " ")
+    .replace(/\s*\bFOOTNOTES?\b.*$/i, "")
     .replace(/[\s.:]+$/, "")
     .trim();
 }

@@ -285,23 +285,20 @@ function countyPage(state, county, entries) {
     html: `${HEAD(title, `Current Davis-Bacon prevailing wage rates for ${label}, ${name}: building, heavy, highway and residential construction. Base rates and fringe for every trade, checked weekly.`, path)}
       <p class="crumbs"><a href="/rates/">Rates</a> / <a href="/rates/${state.toLowerCase()}/">${name}</a> / ${esc(label)}</p>
       <h1>Prevailing wage rates in ${esc(label)}, ${name}</h1>
-      <p class="lede">Federal Davis-Bacon rates for ${esc(label)} come from ${entries.length} wage determination${entries.length === 1 ? "" : "s"}, one for each type of construction. Pick the one in your contract.</p>
-${order
-  .filter((t) => byType[t])
-  .map((t) =>
-    byType[t]
-      .map((e) => {
-        const samples = [/^ELECTRICIAN/, /^PLUMBER/, /^CARPENTER/, /^LABORER/].map((re) => pick(e, re)).filter(Boolean);
-        return `
+      <p class="lede">Federal Davis-Bacon rates for ${esc(label)} come from ${entries.length} wage determination${entries.length === 1 ? "" : "s"}, by type of construction. Pick the one in your contract.</p>
+${[...new Set(order.flatMap((t) => byType[t] ?? []))]
+  .map((e) => {
+    const types = order.filter((t) => e.wd.constructionTypes.includes(t)).join(" and ");
+    const samples = [/^ELECTRICIAN/, /^PLUMBER/, /^CARPENTER/, /^LABORER/].map((re) => pick(e, re)).filter(Boolean);
+    const href = `/rates/${state.toLowerCase()}/${e.wd.fullReferenceNumber.toLowerCase()}.html`;
+    return `
       <section class="wd-card">
-        <h2>${t}: <a href="/rates/${state.toLowerCase()}/${e.wd.fullReferenceNumber.toLowerCase()}.html">${esc(e.wd.fullReferenceNumber)}</a></h2>
+        <h2>${types}: <a href="${href}">${esc(e.wd.fullReferenceNumber)}</a></h2>
         <p class="note">Modification ${e.parsed.mods.at(-1)?.number ?? 0}, ${e.parsed.rates.length} classifications.</p>
         ${samples.length ? `<table class="rates"><tbody>${samples.map((r) => `<tr><td>${esc(r.classification)}</td><td class="num">$${esc(r.base)}</td><td class="num">${esc(r.fringe)}</td></tr>`).join("")}</tbody></table>` : ""}
-        <p><a href="/rates/${state.toLowerCase()}/${e.wd.fullReferenceNumber.toLowerCase()}.html">All ${e.parsed.rates.length} rates</a> · <a href="/?wd=${esc(e.wd.fullReferenceNumber)}" data-track="Rates check">Check your payroll against them</a></p>
+        <p><a href="${href}">All ${e.parsed.rates.length} rates</a> · <a href="/?wd=${esc(e.wd.fullReferenceNumber)}" data-track="Rates check">Check your payroll against them</a></p>
       </section>`;
-      })
-      .join(""),
-  )
+  })
   .join("")}
 ${alertForm({ state, county })}
 ${law ? `\n      <p class="note">${name} also has its own prevailing wage law. On projects paid for only with state or local money, the rates come from ${law.agency}. <a href="${law.url}">State rates</a>.</p>` : ""}

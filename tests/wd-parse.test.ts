@@ -82,3 +82,10 @@ describe("wage determination parsing", () => {
     expect(countySlug("Orleans", "LA")).toBe("orleans-parish");
   });
 });
+
+describe("footnotes in names", () => {
+  it("drops a footnote that runs into the classification", () => {
+    const wd = parseWageDetermination(`PLUMBER FOOTNOTE: PAID HOLIDAY: LABOR DAY.........$ 59.54                  33.26`);
+    expect(wd.rates[0].classification).toBe("PLUMBER");
+  });
+});
