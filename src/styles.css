@@ -1311,3 +1311,21 @@ a.button-primary:hover {
   background: var(--blue-dark);
   color: #fff;
 }
+
+.dock-nudge {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 10px 32px;
+  border-bottom: 1px solid var(--rule-soft);
+  background: var(--blue-wash);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.dock-nudge b {
+  color: var(--ink);
+}
+
+.dock-nudge button {
+  margin-left: 14px;
+}

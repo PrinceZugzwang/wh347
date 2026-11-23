@@ -17,6 +17,8 @@ export default defineConfig({
         "lcptracker-vs-easywh347.html",
         "payroll.html",
         "records.html",
+        "wage-determination.html",
+        "lcptracker-payroll.html",
       ],
     },
   },

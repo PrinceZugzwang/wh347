@@ -99,6 +99,7 @@ export function App() {
   const [officialForm, setOfficialForm] = useState<Uint8Array | null>(null);
   const [officialFormSource, setOfficialFormSource] = useState<"bundled" | "uploaded" | null>(null);
   const [busy, setBusy] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [isSample, setIsSample] = useState(false);
   const [typing, setTyping] = useState(false);
@@ -367,6 +368,7 @@ export function App() {
       const { renderPayrollPdf } = await import("../core/render/pdf");
       const bytes = await renderPayrollPdf(result.payroll, officialForm ?? undefined);
       download(bytes, `${baseName}.pdf`, "application/pdf");
+      setDownloaded(true);
       track("PDF downloaded", { sample: isSample, source: source ?? "file", workers: totals?.workers ?? 0 });
       if (!isSample) {
         adConversion();
@@ -540,7 +542,11 @@ export function App() {
             <HeaderForm header={header} onChange={setHeader} hideWeekEnding />
             <details class="extra" open={ratesText.trim() !== ""}>
               <summary>Check pay against the wage determination</summary>
-              <p>Paste the rates from your wage determination on SAM.gov. Each worker's base rate and fringe are checked against it.</p>
+              <p>
+                Paste the rates from your wage determination on SAM.gov (
+                <a href={`${import.meta.env.BASE_URL}wage-determination.html`}>how to find it</a>). Each worker's base rate and fringe are
+                checked against it.
+              </p>
               <textarea
                 rows={6}
                 spellcheck={false}
@@ -617,7 +623,11 @@ export function App() {
 
               <details class="extra" open={ratesText.trim() !== ""}>
                 <summary>Check pay against the wage determination</summary>
-                <p>Paste the rates from your wage determination on SAM.gov. Each worker's base rate and fringe are checked against it.</p>
+                <p>
+                  Paste the rates from your wage determination on SAM.gov (
+                  <a href={`${import.meta.env.BASE_URL}wage-determination.html`}>how to find it</a>). Each worker's base rate and fringe are
+                  checked against it.
+                </p>
                 <textarea
                   rows={6}
                   spellcheck={false}
@@ -692,6 +702,15 @@ export function App() {
 
       {source && (
         <div class="dock">
+          {downloaded && proConfigured && !isSample && (
+            <p class="dock-nudge">
+              <b>Downloaded.</b> Keep this week on file? Pro saves every week by project for the three years the rules require, and next
+              week starts filled in. $39 a month. Press "Save to my records".
+              <button type="button" class="link quiet" onClick={() => setDownloaded(false)}>
+                Dismiss
+              </button>
+            </p>
+          )}
           <div class="dock-inner">
             <p class={`dock-status${ready ? " ready" : ""}`}>{status}</p>
             {proConfigured && !isSample && (
@@ -915,6 +934,8 @@ export function App() {
           <a href={`${import.meta.env.BASE_URL}primes.html`}>For prime contractors</a>
           <a href={`${import.meta.env.BASE_URL}dol-fillable-wh347-vs-easywh347.html`}>vs DOL's fillable form</a>
           <a href={`${import.meta.env.BASE_URL}lcptracker-vs-easywh347.html`}>vs LCPtracker</a>
+          <a href={`${import.meta.env.BASE_URL}wage-determination.html`}>Finding your wage determination</a>
+          <a href={`${import.meta.env.BASE_URL}lcptracker-payroll.html`}>Entering payroll in LCPtracker</a>
           <a href="mailto:support@easywh347.com">support@easywh347.com</a>
         </div>
         <p>
