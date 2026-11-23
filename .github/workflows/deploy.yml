@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # DOL publishes wage determination changes on Fridays; rebuild the rate pages every Saturday.
+  schedule:
+    - cron: "17 14 * * 6"
 
 permissions:
   contents: read
@@ -27,6 +30,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - name: Rate pages from SAM.gov
+        run: node scripts/rates.mjs
+        continue-on-error: true
+        env:
+          RATE_STATES: MN,CA
       - run: npm run build
         env:
           BASE_PATH: /

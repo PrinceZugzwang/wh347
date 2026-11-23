@@ -16,6 +16,8 @@ interface Props {
   header: ProjectHeader;
   weekDates: string[];
   onChange: (crew: CrewEntry[]) => void;
+  /** Classifications from the loaded wage determination, offered as suggestions. */
+  classifications?: string[];
 }
 
 type TextKey = Exclude<keyof CrewEntry, "key" | "status" | "hours">;
@@ -39,7 +41,7 @@ function summarize(entry: CrewEntry, header: ProjectHeader, weekDates: string[])
  * hours for each day, then rate and fringe. Deductions sit behind a fold
  * because many small contractors enter them from their payroll stub last.
  */
-export function CrewForm({ crew, header, weekDates, onChange }: Props) {
+export function CrewForm({ crew, header, weekDates, onChange, classifications = [] }: Props) {
   const summaries = useMemo(() => crew.map((e) => (header.weekEnding ? summarize(e, header, weekDates) : "")), [crew, header, weekDates]);
 
   const update = (index: number, patch: Partial<CrewEntry>) => onChange(crew.map((e, i) => (i === index ? { ...e, ...patch } : e)));
@@ -59,6 +61,13 @@ export function CrewForm({ crew, header, weekDates, onChange }: Props) {
 
   return (
     <div class="crew">
+      {classifications.length > 0 && (
+        <datalist id="wd-classifications">
+          {classifications.map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
+      )}
       {crew.map((entry, i) => (
         <section class="entry" key={entry.key} aria-label={`Worker ${i + 1}`}>
           <div class="entry-head">
@@ -84,7 +93,10 @@ export function CrewForm({ crew, header, weekDates, onChange }: Props) {
                 onBlur={(e) => setText(i, "workerId", lastFour(e.currentTarget.value))}
               />
             </label>
-            {text(i, "classification", "Classification (as on the wage determination)", "w-class", { placeholder: "Electrician" })}
+            {text(i, "classification", "Classification (as on the wage determination)", "w-class", {
+              placeholder: "Electrician",
+              ...(classifications.length > 0 ? { list: "wd-classifications" } : {}),
+            })}
             <label class="cell w-status">
               <span>Status</span>
               <select value={entry.status} onChange={(e) => update(i, { status: e.currentTarget.value as CrewEntry["status"] })}>

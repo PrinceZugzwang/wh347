@@ -130,6 +130,25 @@ export function App() {
     } else reopen();
   }, []);
 
+  // Arriving from a rate page ("Check your payroll against these rates"): load
+  // that wage determination's rates and its number, then open the form.
+  useEffect(() => {
+    const wd = new URLSearchParams(window.location.search).get("wd")?.toUpperCase() ?? "";
+    if (!/^[A-Z]{2}\d{8}$/.test(wd)) return;
+    fetch(`${import.meta.env.BASE_URL}rates/wd/${wd}.txt`)
+      .then((res) => (res.ok ? res.text() : Promise.reject(new Error(String(res.status)))))
+      .then((text) => {
+        setRatesText(text);
+        setHeader((h) => ({ ...h, wageDeterminationNumber: wd }));
+        track("Rates loaded", { wd, state: wd.slice(0, 2) });
+      })
+      .catch(() => track("Rates load failed", { wd }))
+      .finally(() => {
+        window.history.replaceState(null, "", window.location.pathname);
+        startTyping();
+      });
+  }, []);
+
   useEffect(() => {
     fetchBundledForm().then((bytes) => {
       if (bytes) {
@@ -532,7 +551,13 @@ export function App() {
             {weekDates.length === 0 ? (
               <p class="muted">Pick the Saturday that ends the week to enter hours.</p>
             ) : (
-              <CrewForm crew={crew} header={header} weekDates={weekDates} onChange={setCrew} />
+              <CrewForm
+                crew={crew}
+                header={header}
+                weekDates={weekDates}
+                onChange={setCrew}
+                classifications={rates.map((r) => r.classification)}
+              />
             )}
           </section>
 
@@ -934,6 +959,7 @@ export function App() {
           <a href={`${import.meta.env.BASE_URL}primes.html`}>For prime contractors</a>
           <a href={`${import.meta.env.BASE_URL}dol-fillable-wh347-vs-easywh347.html`}>vs DOL's fillable form</a>
           <a href={`${import.meta.env.BASE_URL}lcptracker-vs-easywh347.html`}>vs LCPtracker</a>
+          <a href={`${import.meta.env.BASE_URL}rates/`}>Prevailing wage rates by county</a>
           <a href={`${import.meta.env.BASE_URL}wage-determination.html`}>Finding your wage determination</a>
           <a href={`${import.meta.env.BASE_URL}lcptracker-payroll.html`}>Entering payroll in LCPtracker</a>
           <a href="mailto:support@easywh347.com">support@easywh347.com</a>
