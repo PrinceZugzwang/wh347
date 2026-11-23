@@ -1,0 +1,137 @@
+/* Records: a ledger of saved weeks, one block per project. */
+
+.records {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 56px 32px 96px;
+}
+
+.records h1 {
+  margin-bottom: 6px;
+}
+
+.account-line {
+  margin: 0 0 36px;
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+.account-line b {
+  color: var(--green);
+}
+
+.records-box {
+  max-width: 620px;
+  margin: 24px 0 48px;
+  padding: 24px 0 8px;
+  border-top: 1.5px solid var(--ink);
+}
+
+.project {
+  margin: 0 0 56px;
+  border-top: 1.5px solid var(--ink);
+}
+
+.project-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 18px 0 14px;
+}
+
+.project-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.project-head p {
+  margin: 2px 0 0;
+  font-size: 14px;
+}
+
+.project-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px 20px;
+  font-size: 14px;
+}
+
+.weeks {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.weeks th {
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-3);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.weeks td {
+  padding: 11px 12px 11px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.weeks .num {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 13.5px;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+  font-size: 14px;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (max-width: 720px) {
+  .records {
+    padding: 36px 16px 72px;
+  }
+
+  .project-head {
+    flex-direction: column;
+  }
+
+  .project-actions {
+    justify-content: flex-start;
+  }
+
+  .weeks thead {
+    display: none;
+  }
+
+  .weeks tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+
+  .weeks td {
+    padding: 2px 0;
+    border: 0;
+  }
+
+  .row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    padding-top: 6px !important;
+  }
+}

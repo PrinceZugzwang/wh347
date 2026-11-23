@@ -37,6 +37,8 @@ import { Mark } from "./Mark";
 import { downloadWorkbook } from "./excel";
 import { readGrid, readPayrollWorkbook } from "./read-file";
 import { load, save } from "./storage";
+import { proConfigured, RECORDS_URL } from "../pro/config";
+import { ProSave } from "./ProSave";
 
 const EMPTY_HEADER: ProjectHeader = {
   contractorName: "",
@@ -109,6 +111,24 @@ export function App() {
   // Only the last four digits of an ID are ever written to storage.
   useEffect(() => save("crew", { entries: crew.map((e) => ({ ...e, workerId: lastFour(e.workerId) })) }), [crew]);
   useEffect(() => save("rates", { text: ratesText }), [ratesText]);
+  // Arriving from a sign-in link or from "Open in form" on the records page:
+  // finish the sign-in, then reopen the form, which is still in this browser.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const signingIn = params.has("code");
+    if (!signingIn && !params.has("continue")) return;
+    const reopen = () => {
+      window.history.replaceState(null, "", window.location.pathname);
+      if (params.has("continue")) startTyping();
+    };
+    if (signingIn && proConfigured) {
+      import("../pro/api")
+        .then((api) => api.currentSession())
+        .catch(() => null)
+        .finally(reopen);
+    } else reopen();
+  }, []);
+
   useEffect(() => {
     fetchBundledForm().then((bytes) => {
       if (bytes) {
@@ -389,6 +409,7 @@ export function App() {
             <a href="#pricing">Pricing</a>
             <a href="#questions">Questions</a>
             <a href="mailto:support@easywh347.com">Contact</a>
+            {proConfigured && <a href={RECORDS_URL}>Your records</a>}
           </nav>
         </div>
       </header>
@@ -673,6 +694,15 @@ export function App() {
         <div class="dock">
           <div class="dock-inner">
             <p class={`dock-status${ready ? " ready" : ""}`}>{status}</p>
+            {proConfigured && !isSample && (
+              <ProSave
+                header={header}
+                crew={source === "typed" ? crew : null}
+                ratesText={ratesText}
+                payroll={result?.payroll ?? null}
+                ready={ready}
+              />
+            )}
             <button
               type="button"
               class="link"
@@ -705,7 +735,8 @@ export function App() {
           <dd>
             What you type, and any payroll file you import, stays in this browser tab. Only the last four digits of each Social Security
             number are kept or printed. Your crew, report header and column matching are remembered in this browser, so next week you only
-            enter the hours. Clear the form to remove them.
+            enter the hours. Clear the form to remove them. The one exception is Pro: when you press "Save to my records", that week is
+            stored in your account so you have it for the three years the rules require.
           </dd>
           <dt>Overtime</dt>
           <dd>
@@ -773,17 +804,29 @@ export function App() {
                   Every week you file, saved by project, for the 3 years after the work ends that Davis-Bacon rules require you to keep them
                 </li>
                 <li>Pull any week back up for an agency, a prime or an auditor in a minute</li>
-                <li>Upload files for LCPtracker and state portals, including California DIR</li>
+                <li>A whole project in one PDF when an agency, a prime or an auditor asks</li>
+                <li>Upload files for LCPtracker and state portals, built for your agency as you need them</li>
                 <li>Email support from a person</li>
               </ul>
-              <a
-                class="plan-action"
-                href="mailto:support@easywh347.com?subject=EasyWH347%20Pro%20early%20access"
-                onClick={() => track("Pro interest")}
-              >
-                Join the early list
-              </a>
-              <p class="plan-note">In development. Join the list and we'll email you when it opens.</p>
+              {proConfigured ? (
+                <>
+                  <a class="plan-action" href={RECORDS_URL} onClick={() => track("Pro interest", { where: "pricing" })}>
+                    Start Pro
+                  </a>
+                  <p class="plan-note">Sign in with your email, then subscribe. Cancel any time.</p>
+                </>
+              ) : (
+                <>
+                  <a
+                    class="plan-action"
+                    href="mailto:support@easywh347.com?subject=EasyWH347%20Pro%20early%20access"
+                    onClick={() => track("Pro interest")}
+                  >
+                    Join the early list
+                  </a>
+                  <p class="plan-note">In development. Join the list and we'll email you when it opens.</p>
+                </>
+              )}
               <p class="plan-note">
                 Paying for certified payroll software now?{" "}
                 <a

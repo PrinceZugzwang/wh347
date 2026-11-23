@@ -16,6 +16,7 @@ export default defineConfig({
         "dol-fillable-wh347-vs-easywh347.html",
         "lcptracker-vs-easywh347.html",
         "payroll.html",
+        "records.html",
       ],
     },
   },
