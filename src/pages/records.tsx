@@ -264,7 +264,7 @@ function Records() {
                   <>
                     <h2>Keep every week on file with Pro</h2>
                     <p class="pro-price">
-                      $39 <span>a month per company. Cancel any time.</span>
+                      $79 <span>a month per company. Cancel any time.</span>
                     </p>
                     <ul>
                       <li>Press "Save to my records" under any payroll you fill in, and it's filed under its project</li>

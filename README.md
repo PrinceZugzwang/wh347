@@ -84,5 +84,5 @@ Pro stores weeks a user chooses to save, by project, in Supabase. Without the en
 1. **Database:** in the Supabase SQL editor, run `supabase/migrations/20261123000000_pro_records.sql`.
 2. **Sign-in:** Authentication > URL Configuration. Site URL `https://easywh347.com`; add redirect URLs `https://easywh347.com/**` and `http://localhost:5173/**`.
 3. **Build variables:** in GitHub, Settings > Secrets and variables > Actions > Variables, add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (Project Settings > API) and `VITE_STRIPE_PRO_LINK`.
-4. **Payments:** a Stripe Payment Link for the $39/month subscription, with "after payment" set to `https://easywh347.com/records.html?paid=1`.
+4. **Payments:** a Stripe Payment Link for the $79/month subscription, with "after payment" set to `https://easywh347.com/records.html?paid=1`.
 5. **Turning Pro on:** either deploy `supabase/functions/stripe-webhook` (instructions at the top of the file), or set `profiles.pro_active` to true by hand in the Table Editor after a payment.

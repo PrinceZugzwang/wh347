@@ -143,7 +143,7 @@ export function ProSave({ header, crew, ratesText, payroll, ready }: Props) {
           <div>
             <h2>Saving weeks is part of Pro</h2>
             <p class="pro-price">
-              $39 <span>a month per company. Cancel any time.</span>
+              $79 <span>a month per company. Cancel any time.</span>
             </p>
             <ul>
               <li>Every week you file, saved by project, for the three years the rules require</li>

@@ -730,7 +730,7 @@ export function App() {
           {downloaded && proConfigured && !isSample && (
             <p class="dock-nudge">
               <b>Downloaded.</b> Keep this week on file? Pro saves every week by project for the three years the rules require, and next
-              week starts filled in. $39 a month. Press "Save to my records".
+              week starts filled in. $79 a month. Press "Save to my records".
               <button type="button" class="link quiet" onClick={() => setDownloaded(false)}>
                 Dismiss
               </button>
@@ -840,7 +840,7 @@ export function App() {
             <div class="plan">
               <h3>Pro</h3>
               <p class="price">
-                $39 <span>per month, per company</span>
+                $79 <span>per month, per company</span>
               </p>
               <p class="plan-pitch">Your 3 years of payroll records, ready if the agency asks.</p>
               <ul>
