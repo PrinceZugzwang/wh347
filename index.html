@@ -31,11 +31,65 @@
         };
       plausible.init();
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "EasyWH347",
+        "url": "https://easywh347.com/",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Certified payroll (WH-347) for Davis-Bacon construction work",
+        "operatingSystem": "Web browser",
+        "description": "Fill in the U.S. Department of Labor Form WH-347 certified payroll online and download it ready to sign, with overtime, fringe and net pay worked out and pay checked against the wage determination. Free, no account. Pro keeps every week on file by project and makes California DIR eCPR and New York DOL upload files.",
+        "image": "https://easywh347.com/sample-report.png",
+        "screenshot": "https://easywh347.com/sample-report.png",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Free",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "Fill in or import a payroll as often as you like; PDF with DOL's signing page; CSV; overtime, wage rate and SSN checks. No account.",
+            "url": "https://easywh347.com/"
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro",
+            "price": "79.00",
+            "priceCurrency": "USD",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "79.00",
+              "priceCurrency": "USD",
+              "billingDuration": "P1M",
+              "unitText": "per company per month"
+            },
+            "description": "Every week saved by project for 3 years, next week started from the last, whole-project PDF, California DIR eCPR and New York DOL upload files. Cancel any time.",
+            "url": "https://easywh347.com/records.html"
+          }
+        ],
+        "provider": { "@type": "Organization", "name": "EasyWH347", "email": "support@easywh347.com", "url": "https://easywh347.com/" }
+      }
+    </script>
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="EasyWH347 for AI assistants" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>
     <div id="app"></div>
-    <noscript>This tool runs in your browser and needs JavaScript turned on.</noscript>
+    <noscript>
+      <h1>EasyWH347: fill in a WH-347 certified payroll online</h1>
+      <p>
+        Fill in the U.S. Department of Labor's Form WH-347 (January 2025, OMB 1235-0008) for Davis-Bacon jobs and download it ready to sign,
+        with DOL's Statement of Compliance page. Type the hours or import a payroll export; overtime, fringe and net pay are worked out and
+        checked against your wage determination. Free, no account. This tool runs in your browser and needs JavaScript turned on.
+      </p>
+      <p>
+        Pro, $79 a month per company: every week saved by project for 3 years, next week started from the last, a whole project in one PDF,
+        and upload files for California DIR (eCPR) and New York DOL. Cancel any time.
+        <a href="/pricing.txt">Pricing and limits</a> · <a href="/sample-certified-payroll.pdf">Sample PDF</a> ·
+        <a href="mailto:support@easywh347.com">support@easywh347.com</a>
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

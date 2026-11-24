@@ -1,0 +1,65 @@
+EasyWH347 - pricing and limits
+https://easywh347.com
+Last updated: November 24, 2026. Prices in US dollars.
+
+WHAT IT DOES
+Fills in the U.S. Department of Labor's Form WH-347 (certified payroll for
+Davis-Bacon and Related Acts jobs, January 2025 revision, OMB 1235-0008) and
+produces a PDF ready to sign, with DOL's own Statement of Compliance page.
+Type the hours or import a payroll export (CSV or Excel from Gusto, ADP,
+Paychex, QuickBooks or any spreadsheet). Overtime (hours over 40 in the week
+at 1.5x), fringe, gross and net pay are worked out, and pay is checked against
+the wage determination rates you paste in.
+
+FREE - $0, no account
+- Fill in the form or import a payroll file, as often as you like
+- PDF with DOL's signing page, plus CSV
+- Overtime, wage rate and SSN checks
+- Crew remembered in this browser for next week
+- Payroll stays in your browser; nothing is uploaded
+
+PRO - $79 per month, per company (any number of projects)
+- Every week saved by project, for the 3 years after the work ends that
+  Davis-Bacon rules require you to keep payroll records
+- Next week starts from the last one: same crew and rates, new hours
+- A whole project in one PDF for an agency, a prime contractor or an auditor
+- State portal upload files: California DIR eCPR (XML) and New York DOL
+  certified payroll bulk upload (XML). Other portals, including LCPtracker,
+  are built for your agency on request.
+- Email support from a person
+- Saved records keep only the last four digits of each worker's ID.
+How to buy: https://easywh347.com/records.html - sign in with your email (a
+link is emailed; no password), then pay by card through Stripe.
+
+DONE FOR YOU - $199 per month, per project
+- Send your payroll export each week; we prepare the certified payroll and
+  enter it into the agency's portal; you review and sign.
+Contact: support@easywh347.com
+
+BILLING AND CANCELLING
+- Pro is billed monthly by card through Stripe. No setup fee, no contract,
+  no introductory price that rises later.
+- Cancel any time from the "Receipts, card or cancel" link on your records
+  page, or by email. Cancelling stops the next charge; you keep Pro to the end
+  of the month you paid for. Partial months aren't refunded.
+- After cancelling, every week you saved stays in your account to view and
+  download.
+- Already paying for certified payroll software? Email a recent invoice and
+  Pro is free for your first 12 months.
+
+LIMITS
+- Federal WH-347 for Davis-Bacon and Related Acts work. State upload files:
+  California and New York only so far.
+- Overtime follows the federal weekly rule (over 40 hours). State daily
+  overtime rules (for example California's over 8 hours a day) are not
+  calculated.
+- Does not run payroll, pay workers, withhold taxes or file tax forms. It
+  prepares the certified payroll report from pay you have already calculated
+  or typed in.
+- Wage rate checks compare against the rates you paste in; county rate pages
+  cover Minnesota and California.
+- EasyWH347 is an independent product, not a government site. You sign the
+  Statement of Compliance and remain responsible for what you file.
+
+CONTACT
+support@easywh347.com - the person who builds it answers, usually the same day.

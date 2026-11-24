@@ -1,0 +1,34 @@
+# EasyWH347
+
+> Fill in the U.S. Department of Labor's Form WH-347 (certified payroll for Davis-Bacon and Related Acts jobs) online and download it as a PDF ready to sign. Free, no account. Pro ($79/month per company) keeps every week on file by project and makes state portal upload files.
+
+EasyWH347 is for small construction contractors and subcontractors on federally funded or prevailing-wage jobs who must file a certified payroll every week. It runs in the browser: type the hours or import a payroll export (Gusto, ADP, Paychex, QuickBooks, any CSV or Excel), and it works out overtime (hours over 40 at 1.5x), fringe, gross and net pay, checks pay against the wage determination rates you paste in, and produces the January 2025 WH-347 (OMB 1235-0008) with DOL's own Statement of Compliance page. On the free plan nothing is uploaded; payroll stays in the user's browser.
+
+## Plans
+
+- [Pricing and limits](https://easywh347.com/pricing.txt): what each plan includes, price, cancellation and what isn't supported
+- Free: fill in or import a payroll as often as you like; PDF with DOL's signing page; CSV; overtime, wage rate and SSN checks; crew remembered in the browser for next week
+- Pro, $79 per month per company: every week saved by project for the 3 years Davis-Bacon rules require; next week starts from the last; a whole project in one PDF; upload files for California DIR (eCPR XML) and New York DOL (bulk upload XML); email support from a person. Cancel any time.
+- Done for you, $199 per month per project: send the payroll export each week; EasyWH347 prepares the certified payroll and enters it into the agency's portal; the contractor reviews and signs
+
+## Use it
+
+- [Fill in a WH-347](https://easywh347.com/): the free tool, no account
+- [Sample finished WH-347 (PDF)](https://easywh347.com/sample-certified-payroll.pdf): made-up company and crew
+- [Your records (Pro)](https://easywh347.com/records.html)
+
+## Guides
+
+- [Finding your wage determination on SAM.gov](https://easywh347.com/wage-determination.html)
+- [Prevailing wage rates by county](https://easywh347.com/rates/): Minnesota and California, from SAM.gov, updated weekly
+- [Entering certified payroll in LCPtracker](https://easywh347.com/lcptracker-payroll.html)
+- [Free certified payroll Excel template](https://easywh347.com/certified-payroll-excel-template.html)
+- [DOL fillable WH-347 vs EasyWH347](https://easywh347.com/dol-fillable-wh347-vs-easywh347.html)
+- [LCPtracker vs EasyWH347](https://easywh347.com/lcptracker-vs-easywh347.html)
+- [For prime contractors](https://easywh347.com/primes.html)
+
+## Policies
+
+- [Privacy](https://easywh347.com/privacy.html)
+- [Terms](https://easywh347.com/terms.html)
+- Contact: support@easywh347.com
