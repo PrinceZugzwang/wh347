@@ -38,8 +38,7 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /
-          # The Supabase project is set in .env.production; the Pro payment link comes from a repository variable.
-          VITE_STRIPE_PRO_LINK: ${{ vars.VITE_STRIPE_PRO_LINK }}
+          # The Supabase project, Pro payment link and Meta pixel are public values kept in .env.production.
       - name: Warn if the official form is missing
         run: test -f dist/forms/wh347.pdf || echo "::warning::public/forms/wh347.pdf is missing; users will be asked to add the form themselves."
       - uses: actions/upload-pages-artifact@v3
