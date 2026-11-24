@@ -11,7 +11,7 @@ import { renderPayrollCsv } from "../core/render/csv";
 import * as api from "../pro/api";
 import { PRO_LINK, proConfigured } from "../pro/config";
 import { paymentUrl } from "../pro/model";
-import { track } from "../ui/analytics";
+import { initAdTag, metaEvent, track } from "../ui/analytics";
 import { download } from "../ui/download";
 import { Mark } from "../ui/Mark";
 import { save } from "../ui/storage";
@@ -95,6 +95,10 @@ function Records() {
   }, []);
 
   // After paying, Stripe sends people back here; Pro switches on when the payment is confirmed, usually within seconds.
+  useEffect(() => {
+    if (paid && state.kind === "in" && state.pro) metaEvent("Subscribe", { value: 79, currency: "USD" });
+  }, [paid, state.kind === "in" && state.pro]);
+
   useEffect(() => {
     if (!paid || state.kind !== "in" || state.pro) return;
     const id = window.setTimeout(() => void refresh(), 3000);
@@ -391,4 +395,5 @@ function Records() {
 }
 
 const root = document.getElementById("records");
+initAdTag();
 if (root) render(<Records />, root);

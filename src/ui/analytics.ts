@@ -10,6 +10,8 @@ declare global {
     plausible?: (event: string, options?: { props?: Props }) => void;
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
+    fbq?: ((...args: unknown[]) => void) & { queue?: unknown[]; loaded?: boolean; version?: string; push?: unknown };
+    _fbq?: unknown;
   }
 }
 
@@ -27,21 +29,56 @@ export function track(event: string, props?: Props): void {
  * clicks an ad and comes back later to finish their payroll is still counted.
  */
 const AD_VISIT_KEY = "wh347:from-ad";
+const META_VISIT_KEY = "wh347:from-meta";
+const META_PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID as string | undefined;
 const AD_WINDOW_MS = 90 * 86_400_000;
 
-export function initAdTag(): void {
-  const params = new URLSearchParams(window.location.search);
-  let fromAd = params.has("gclid") || params.has("gbraid") || params.has("wbraid");
+/** True when this visit came from an ad (its click id is in the URL) or one did in the last 90 days. */
+function cameFromAd(params: URLSearchParams, ids: string[], key: string): boolean {
+  let fromAd = ids.some((id) => params.has(id));
   try {
-    if (fromAd) localStorage.setItem(AD_VISIT_KEY, String(Date.now()));
+    if (fromAd) localStorage.setItem(key, String(Date.now()));
     else {
-      const since = Number(localStorage.getItem(AD_VISIT_KEY) ?? 0);
+      const since = Number(localStorage.getItem(key) ?? 0);
       fromAd = since > 0 && Date.now() - since < AD_WINDOW_MS;
     }
   } catch {
     // Without storage only the landing visit can be attributed.
   }
-  if (!fromAd) return;
+  return fromAd;
+}
+
+/** Meta's pixel, under the same rule as the Google tag: only for visitors who came from a Meta ad. */
+function initMetaPixel(params: URLSearchParams): void {
+  if (!META_PIXEL_ID || !cameFromAd(params, ["fbclid"], META_VISIT_KEY)) return;
+  // Meta's standard stub: calls queue until fbevents.js loads and supplies callMethod.
+  type Fbq = NonNullable<Window["fbq"]> & { callMethod?: (...args: unknown[]) => void };
+  const fbq: Fbq = Object.assign(
+    function (...args: unknown[]) {
+      if (fbq.callMethod) fbq.callMethod(...args);
+      else fbq.queue?.push(args);
+    },
+    { queue: [] as unknown[], loaded: true, version: "2.0" },
+  );
+  fbq.push = fbq;
+  window.fbq = fbq;
+  window._fbq = fbq;
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = "https://connect.facebook.net/en_US/fbevents.js";
+  document.head.append(script);
+  window.fbq("init", META_PIXEL_ID);
+  window.fbq("track", "PageView");
+}
+
+export function metaEvent(name: "Lead" | "CompleteRegistration" | "Subscribe", params?: Props): void {
+  window.fbq?.("track", name, params);
+}
+
+export function initAdTag(): void {
+  const params = new URLSearchParams(window.location.search);
+  initMetaPixel(params);
+  if (!cameFromAd(params, ["gclid", "gbraid", "wbraid"], AD_VISIT_KEY)) return;
 
   const script = document.createElement("script");
   script.async = true;
@@ -59,6 +96,7 @@ export function initAdTag(): void {
 
 export function adConversion(): void {
   window.gtag?.("event", "conversion", { send_to: PDF_CONVERSION });
+  metaEvent("Lead");
 }
 
 /** Records a download and reports when it's from a later week than the last one: the repeat use we care about. */
