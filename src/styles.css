@@ -929,6 +929,13 @@ button.plan-action {
   align-self: flex-start;
 }
 
+.who {
+  max-width: 62ch;
+  margin: 28px 0 0;
+  font-size: 14.5px;
+  color: var(--ink-2);
+}
+
 .plan-note {
   margin: 8px 0 0;
   font-size: 13px;

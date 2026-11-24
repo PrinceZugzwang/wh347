@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { addDays, clearHours, formatMoney, shortDate } from "../core";
 import { renderPayrollCsv } from "../core/render/csv";
 import * as api from "../pro/api";
-import { PRO_LINK, proConfigured } from "../pro/config";
+import { MANAGE_URL, PRO_LINK, proConfigured } from "../pro/config";
 import { paymentUrl } from "../pro/model";
 import { initAdTag, metaEvent, track } from "../ui/analytics";
 import { download } from "../ui/download";
@@ -253,6 +253,14 @@ function Records() {
           <>
             <p class="account-line">
               {state.email} · {state.pro ? <b>Pro</b> : "Free account"}
+              {state.pro && (
+                <>
+                  {" · "}
+                  <a href={MANAGE_URL} onClick={() => track("Manage billing")}>
+                    Receipts, card or cancel
+                  </a>
+                </>
+              )}
             </p>
 
             {!state.pro && (
@@ -261,14 +269,15 @@ function Records() {
                   <>
                     <h2>Confirming your payment</h2>
                     <p>
-                      This usually takes a few seconds. If Pro isn't on within a minute, email support@easywh347.com and we'll switch it on.
+                      Pro is switched on for this account once the payment comes through, within one business day and usually the same day. This page
+                      updates by itself. Questions: support@easywh347.com.
                     </p>
                   </>
                 ) : (
                   <>
                     <h2>Keep every week on file with Pro</h2>
                     <p class="pro-price">
-                      $79 <span>a month per company. Cancel any time.</span>
+                      $79 <span>a month per company. Cancel any time; you keep Pro to the end of the month you paid for.</span>
                     </p>
                     <ul>
                       <li>Press "Save to my records" under any payroll you fill in, and it's filed under its project</li>

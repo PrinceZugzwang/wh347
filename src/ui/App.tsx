@@ -507,7 +507,16 @@ export function App() {
             />
             <figcaption>
               What you download: page 1 from the sample file, overtime already split out. Page 2 is the Department of Labor's own signing
-              page.
+              page.{" "}
+              <a
+                href={`${import.meta.env.BASE_URL}sample-certified-payroll.pdf`}
+                target="_blank"
+                rel="noopener"
+                onClick={() => track("Sample PDF opened")}
+              >
+                Open the full sample PDF
+              </a>{" "}
+              (a made-up company and crew).
             </figcaption>
           </figure>
         </main>
@@ -857,7 +866,11 @@ export function App() {
                   <a class="plan-action" href={RECORDS_URL} onClick={() => track("Pro interest", { where: "pricing" })}>
                     Start Pro
                   </a>
-                  <p class="plan-note">Sign in with your email, then subscribe. Cancel any time.</p>
+                  <p class="plan-note">
+                    Sign in with your email, then subscribe by card. Billed monthly. Cancel any time from your records page or by email:
+                    no more charges, and you keep Pro to the end of the month you paid for. After that, every week you saved stays there to
+                    view and download.
+                  </p>
                 </>
               ) : (
                 <>
@@ -901,6 +914,10 @@ export function App() {
               </a>
             </div>
           </div>
+          <p class="who">
+            EasyWH347 is an independent product, not a government site. Email{" "}
+            <a href="mailto:support@easywh347.com">support@easywh347.com</a> and the person who builds it answers, usually the same day.
+          </p>
         </div>
       </section>
 
