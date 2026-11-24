@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import type { Payroll } from "../core";
-import {
-  type CaWorkerDetails,
-  renderCaEcpr,
-  renderNyXml,
-  workersOf,
-} from "../core/render/state";
+import { type CaWorkerDetails, renderCaEcpr, renderNyXml, workersOf } from "../core/render/state";
 import { track } from "../ui/analytics";
 import { download } from "../ui/download";
 import { load, save } from "../ui/storage";
@@ -114,7 +109,12 @@ export function StateFile({ payroll, projectKey, fileBase, onClose }: Props) {
             <legend>Project</legend>
             <label class="pro-field">
               DIR contractor registration number
-              <input inputMode="numeric" value={ids.caPWCR} onInput={(e) => setId("caPWCR", e.currentTarget.value)} placeholder="10 digits" />
+              <input
+                inputMode="numeric"
+                value={ids.caPWCR}
+                onInput={(e) => setId("caPWCR", e.currentTarget.value)}
+                placeholder="10 digits"
+              />
             </label>
             <label class="pro-field">
               DIR project ID
@@ -151,7 +151,12 @@ export function StateFile({ payroll, projectKey, fileBase, onClose }: Props) {
                 </label>
                 <label class="pro-field short">
                   State
-                  <input maxLength={2} value={d.state ?? ""} onInput={(e) => setPerson(w.key, "state", e.currentTarget.value)} placeholder="CA" />
+                  <input
+                    maxLength={2}
+                    value={d.state ?? ""}
+                    onInput={(e) => setPerson(w.key, "state", e.currentTarget.value)}
+                    placeholder="CA"
+                  />
                 </label>
                 <label class="pro-field short">
                   ZIP
@@ -182,8 +187,8 @@ export function StateFile({ payroll, projectKey, fileBase, onClose }: Props) {
 
         {portal === "CA" && (
           <p class="state-note">
-            California asks for the full SSN. It stays in this browser and in the file you download, and is never sent to us. The WH-347
-            has one fringe amount per hour, so the file reports it under "Other".
+            California asks for the full SSN. It stays in this browser and in the file you download, and is never sent to us. The WH-347 has
+            one fringe amount per hour, so the file reports it under "Other".
           </p>
         )}
 

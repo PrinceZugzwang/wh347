@@ -5,14 +5,7 @@ import { join } from "node:path";
 import Papa from "papaparse";
 import { describe, expect, it } from "vitest";
 import { buildPayroll, type Cell, type ProjectHeader, proposeMapping, readTimecards, toSheet } from "../src/core";
-import {
-  type CaDetails,
-  type NyDetails,
-  renderCaEcpr,
-  renderNyXml,
-  splitName,
-  workersOf,
-} from "../src/core/render/state";
+import { type CaDetails, type NyDetails, renderCaEcpr, renderNyXml, splitName, workersOf } from "../src/core/render/state";
 
 const header: ProjectHeader = {
   contractorName: "Bayline Electric Inc.",
@@ -80,21 +73,57 @@ describe("California eCPR", () => {
     const t = tags(xml!);
     // Top of DIR's V2-eCPR-Sample-Schema.xml.
     expect(t.slice(0, 12)).toEqual([
-      "eCPR", "version", "contractorInfo", "contractorName", "contractorPWCR", "projectInfo",
-      "awardingBody", "projectID", "payrollInfo", "statementOfNP", "forWeekEnding", "employees",
+      "eCPR",
+      "version",
+      "contractorInfo",
+      "contractorName",
+      "contractorPWCR",
+      "projectInfo",
+      "awardingBody",
+      "projectID",
+      "payrollInfo",
+      "statementOfNP",
+      "forWeekEnding",
+      "employees",
     ]);
     // An employee, as in the sample.
     const employee = t.slice(t.indexOf("employee"), t.indexOf("classifications") + 1);
     expect(employee).toEqual([
-      "employee", "firstName", "lastName", "middleName", "address", "street", "city", "state", "zip",
-      "ssn", "itin", "notes", "classifications",
+      "employee",
+      "firstName",
+      "lastName",
+      "middleName",
+      "address",
+      "street",
+      "city",
+      "state",
+      "zip",
+      "ssn",
+      "itin",
+      "notes",
+      "classifications",
     ]);
     const classification = t.slice(t.indexOf("classification"), t.indexOf("day"));
     expect(classification).toEqual(["classification", "craft", "employeeLevel", "apprenticeLevel", "hrsWorkedEachDay"]);
     const tail = t.slice(t.indexOf("payments"), t.indexOf("checkNum") + 1);
     expect(tail).toEqual([
-      "payments", "travelSubs", "deductions", "fedTax", "FICA", "stateTax", "SDI", "fundAdmin", "savings",
-      "dues", "other", "totalDeductions", "earnings", "grossThisProject", "grossAllWork", "netWagePaidWeek", "checkNum",
+      "payments",
+      "travelSubs",
+      "deductions",
+      "fedTax",
+      "FICA",
+      "stateTax",
+      "SDI",
+      "fundAdmin",
+      "savings",
+      "dues",
+      "other",
+      "totalDeductions",
+      "earnings",
+      "grossThisProject",
+      "grossAllWork",
+      "netWagePaidWeek",
+      "checkNum",
     ]);
     expect(xml).toContain('xmlns:CPR="https://www.dir.ca.gov/Public-Works/CPR/eCPR-v2.xsd"');
   });

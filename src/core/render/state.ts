@@ -117,7 +117,10 @@ function workerTotals(group: WorkerGroup) {
   const head = group.rows.find((r) => r.carriesWorkerTotals) ?? group.rows[0];
   return {
     grossThisProject: sum(group.rows, (r) => r.grossThisProject),
-    grossAllWork: Math.max(head.grossAllWork, sum(group.rows, (r) => r.grossThisProject)),
+    grossAllWork: Math.max(
+      head.grossAllWork,
+      sum(group.rows, (r) => r.grossThisProject),
+    ),
     deductions: {
       fica: sum(group.rows, (r) => r.deductions.fica),
       federal: sum(group.rows, (r) => r.deductions.federal),
@@ -170,8 +173,7 @@ export function renderCaEcpr(payroll: Payroll, details: CaDetails): StateFile {
 
   const days = payroll.weekDates;
   const lines: string[] = [];
-  const el = (indent: number, name: string, value: string) =>
-    lines.push(`${"  ".repeat(indent)}<CPR:${name}>${esc(value)}</CPR:${name}>`);
+  const el = (indent: number, name: string, value: string) => lines.push(`${"  ".repeat(indent)}<CPR:${name}>${esc(value)}</CPR:${name}>`);
   const open = (indent: number, name: string, attrs = "") => lines.push(`${"  ".repeat(indent)}<CPR:${name}${attrs}>`);
   const close = (indent: number, name: string) => lines.push(`${"  ".repeat(indent)}</CPR:${name}>`);
 
@@ -322,9 +324,7 @@ export function renderNyXml(payroll: Payroll, details: NyDetails): StateFile {
   const close = (indent: number, name: string) => lines.push(`${"  ".repeat(indent)}</${name}>`);
 
   lines.push('<?xml version="1.0" encoding="UTF-8"?>');
-  lines.push(
-    '<ProjectRollup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="NYDOL_CertPayroll.xsd">',
-  );
+  lines.push('<ProjectRollup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="NYDOL_CertPayroll.xsd">');
   el(1, "prcNumber", details.prcNumber.trim());
   el(1, "weekEndingDate", `${payroll.header.weekEnding}T00:00:00.000Z`);
   open(1, "employeeWorkWeeks");

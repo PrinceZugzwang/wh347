@@ -282,8 +282,8 @@ function Records() {
                   <>
                     <h2>Confirming your payment</h2>
                     <p>
-                      Pro is switched on for this account once the payment comes through, within one business day and usually the same day. This page
-                      updates by itself. Questions: support@easywh347.com.
+                      Pro is switched on for this account once the payment comes through, within one business day and usually the same day.
+                      This page updates by itself. Questions: support@easywh347.com.
                     </p>
                   </>
                 ) : (
@@ -296,7 +296,9 @@ function Records() {
                       <li>Press "Save to my records" under any payroll you fill in, and it's filed under its project</li>
                       <li>Any week back as a PDF or CSV, or a whole project in one PDF for an agency, a prime or an auditor</li>
                       <li>Next week starts from the last one: same crew and rates, new hours</li>
-                      <li>Upload files for California DIR (eCPR) and New York DOL, with other portals built for your agency as you need them</li>
+                      <li>
+                        Upload files for California DIR (eCPR) and New York DOL, with other portals built for your agency as you need them
+                      </li>
                     </ul>
                     {PRO_LINK ? (
                       <a
@@ -422,12 +424,7 @@ function Records() {
           </>
         )}
         {portal && (
-          <StateFile
-            payroll={portal.payroll}
-            projectKey={portal.projectKey}
-            fileBase={portal.fileBase}
-            onClose={() => setPortal(null)}
-          />
+          <StateFile payroll={portal.payroll} projectKey={portal.projectKey} fileBase={portal.fileBase} onClose={() => setPortal(null)} />
         )}
       </main>
     </>

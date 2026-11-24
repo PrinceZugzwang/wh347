@@ -858,7 +858,10 @@ export function App() {
                 </li>
                 <li>Pull any week back up for an agency, a prime or an auditor in a minute</li>
                 <li>A whole project in one PDF when an agency, a prime or an auditor asks</li>
-                <li>Upload files for California DIR (eCPR) and New York DOL; LCPtracker and other portals built for your agency as you need them</li>
+                <li>
+                  Upload files for California DIR (eCPR) and New York DOL; LCPtracker and other portals built for your agency as you need
+                  them
+                </li>
                 <li>Email support from a person</li>
               </ul>
               {proConfigured ? (
@@ -867,8 +870,8 @@ export function App() {
                     Start Pro
                   </a>
                   <p class="plan-note">
-                    Sign in with your email, then subscribe by card. Billed monthly. Cancel any time from your records page or by email:
-                    no more charges, and you keep Pro to the end of the month you paid for. After that, every week you saved stays there to
+                    Sign in with your email, then subscribe by card. Billed monthly. Cancel any time from your records page or by email: no
+                    more charges, and you keep Pro to the end of the month you paid for. After that, every week you saved stays there to
                     view and download.
                   </p>
                 </>
