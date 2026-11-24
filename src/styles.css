@@ -1292,6 +1292,80 @@ button.plan-action {
   color: var(--ink);
 }
 
+.state-dialog {
+  width: min(640px, calc(100% - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.state-dialog fieldset {
+  margin: 0 0 18px;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.state-dialog legend {
+  padding: 0;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.state-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 4px 0 18px;
+  font-size: 15px;
+}
+
+.state-grid {
+  display: grid;
+  grid-template-columns: 1fr 72px 130px;
+  gap: 0 12px;
+}
+
+.state-grid .wide {
+  grid-column: 1 / -1;
+}
+
+.state-grid .pair {
+  grid-column: span 2;
+}
+
+.state-grid input {
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.state-note {
+  font-size: 13.5px;
+}
+
+.state-missing {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--red);
+  background: var(--red-wash);
+  font-size: 14px;
+}
+
+.state-missing ul {
+  margin: 6px 0 0;
+}
+
+.pro-field .opt {
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+@media (max-width: 560px) {
+  .state-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .pro-field input:focus {
   outline: 2px solid var(--blue);
   outline-offset: 1px;

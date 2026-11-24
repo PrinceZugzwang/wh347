@@ -15,6 +15,7 @@ import { initAdTag, metaEvent, track } from "../ui/analytics";
 import { download } from "../ui/download";
 import { Mark } from "../ui/Mark";
 import { save } from "../ui/storage";
+import { StateFile } from "./StateFile";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -66,6 +67,7 @@ function Records() {
   const [sent, setSent] = useState("");
   const [formError, setFormError] = useState("");
   const [busy, setBusy] = useState("");
+  const [portal, setPortal] = useState<{ payroll: api.WeekRecord["payroll"]; projectKey: string; fileBase: string } | null>(null);
   const paid = useMemo(() => new URLSearchParams(window.location.search).has("paid"), []);
 
   async function refresh() {
@@ -159,6 +161,17 @@ function Records() {
       const [week] = await api.getWeeks([id]);
       download(renderPayrollCsv(week.payroll), `${name}.csv`, "text/csv");
       track("Pro CSV downloaded");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function onPortal(id: string, name: string, projectKey: string) {
+    setBusy(id);
+    try {
+      const [week] = await api.getWeeks([id]);
+      setPortal({ payroll: week.payroll, projectKey, fileBase: name });
+      track("State file opened");
     } finally {
       setBusy("");
     }
@@ -283,7 +296,7 @@ function Records() {
                       <li>Press "Save to my records" under any payroll you fill in, and it's filed under its project</li>
                       <li>Any week back as a PDF or CSV, or a whole project in one PDF for an agency, a prime or an auditor</li>
                       <li>Next week starts from the last one: same crew and rates, new hours</li>
-                      <li>Upload files for your agency's portal, built for your account when you need them</li>
+                      <li>Upload files for California DIR (eCPR) and New York DOL, with other portals built for your agency as you need them</li>
                     </ul>
                     {PRO_LINK ? (
                       <a
@@ -377,6 +390,16 @@ function Records() {
                                   <button type="button" class="link" disabled={busy !== ""} onClick={() => onCsv(w.id, name)}>
                                     CSV
                                   </button>
+                                  {state.pro && (
+                                    <button
+                                      type="button"
+                                      class="link"
+                                      disabled={busy !== ""}
+                                      onClick={() => onPortal(w.id, name, project?.project_key ?? name)}
+                                    >
+                                      State file
+                                    </button>
+                                  )}
                                   {w.first_worker !== null && w.first_worker !== undefined && (
                                     <button type="button" class="link" disabled={busy !== ""} onClick={() => onOpen(w.id, false)}>
                                       Open in form
@@ -397,6 +420,14 @@ function Records() {
                   );
                 })}
           </>
+        )}
+        {portal && (
+          <StateFile
+            payroll={portal.payroll}
+            projectKey={portal.projectKey}
+            fileBase={portal.fileBase}
+            onClose={() => setPortal(null)}
+          />
         )}
       </main>
     </>

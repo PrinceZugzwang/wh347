@@ -858,7 +858,7 @@ export function App() {
                 </li>
                 <li>Pull any week back up for an agency, a prime or an auditor in a minute</li>
                 <li>A whole project in one PDF when an agency, a prime or an auditor asks</li>
-                <li>Upload files for LCPtracker and state portals, built for your agency as you need them</li>
+                <li>Upload files for California DIR (eCPR) and New York DOL; LCPtracker and other portals built for your agency as you need them</li>
                 <li>Email support from a person</li>
               </ul>
               {proConfigured ? (
