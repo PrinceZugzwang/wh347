@@ -15,6 +15,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # xmllint checks generated state portal files against the published schemas in tests.
+      - run: sudo apt-get install -y --no-install-recommends libxml2-utils
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test

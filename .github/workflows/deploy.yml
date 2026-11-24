@@ -29,6 +29,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # xmllint checks generated state portal files against the published schemas in tests.
+      - run: sudo apt-get install -y --no-install-recommends libxml2-utils
       - run: npm test
       - name: Rate pages from SAM.gov
         run: node scripts/rates.mjs
