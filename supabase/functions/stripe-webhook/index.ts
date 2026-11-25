@@ -45,13 +45,9 @@ async function verify(body: string, header: string): Promise<boolean> {
   const sigs = (parts.v1 ?? []).map(([, v]) => v);
   if (!t || sigs.length === 0 || !webhookSecret) return false;
   if (Math.abs(Date.now() / 1000 - Number(t)) > TOLERANCE_SECONDS) return false;
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(webhookSecret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(webhookSecret), { name: "HMAC", hash: "SHA-256" }, false, [
+    "sign",
+  ]);
   const expected = hex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${t}.${body}`)));
   return sigs.some((s) => safeEqual(s, expected));
 }
@@ -71,7 +67,9 @@ async function activate(session: Record<string, any>): Promise<string> {
     if (data?.length) return `pro on for user ${userId}`;
   }
 
-  const email = String(session.customer_details?.email ?? session.customer_email ?? "").trim().toLowerCase();
+  const email = String(session.customer_details?.email ?? session.customer_email ?? "")
+    .trim()
+    .toLowerCase();
   if (!email) return "no account and no email on the checkout";
   const { data, error } = await admin.from("profiles").update(fields).eq("email", email).select("user_id");
   if (error) throw error;
