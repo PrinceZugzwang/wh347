@@ -65,7 +65,11 @@ export function LeadForm() {
   if (status === "sent") {
     return (
       <p class="lead-done" role="status">
-        Got it. We'll email you within one business day to set up your first week.
+        Got it. Skip the wait:{" "}
+        <a href={`${import.meta.env.BASE_URL}start.html?email=${encodeURIComponent(email.trim())}`}>
+          send last week's payroll and start your two free weeks
+        </a>
+        .
       </p>
     );
   }

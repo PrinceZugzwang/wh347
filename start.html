@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Start done-for-you certified payroll | EasyWH347</title>
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="Send last week's payroll export and start two free weeks of done-for-you certified payroll." />
+    <script async src="https://plausible.io/js/pa-LsqnZrZ_AWqSKRzTcPYEM.js"></script>
+    <script>
+      window.plausible =
+        window.plausible ||
+        function () {
+          (plausible.q = plausible.q || []).push(arguments);
+        };
+      plausible.init =
+        plausible.init ||
+        function (i) {
+          plausible.o = i || {};
+        };
+      plausible.init();
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/start.ts"></script>
+  </head>
+  <body>
+    <header><a href="./">EasyWH347</a></header>
+    <main class="start">
+      <section id="welcome" hidden>
+        <h1>You're in. Your two free weeks have started.</h1>
+        <p>
+          If you haven't sent last week's payroll yet, add it below. We'll prepare the certified payroll, check it against the wage
+          determination, and email it to you to review and sign within one business day.
+        </p>
+      </section>
+
+      <section id="intro">
+        <h1>Start your two free weeks</h1>
+        <p class="lede">
+          We prepare your weekly certified payroll from your payroll export, check every rate against the wage determination, and file it in
+          your state portal or LCPtracker. You review and sign.
+        </p>
+      </section>
+
+      <form id="upload" class="step">
+        <h2><span class="n">1</span> Send last week's payroll</h2>
+        <p class="hint">Any format: a Gusto, ADP, Paychex or QuickBooks export, a spreadsheet, a PDF, or a photo of the timesheet.</p>
+
+        <label class="drop">
+          <input id="file" type="file" multiple accept=".csv,.xlsx,.xls,.pdf,.txt,.jpg,.jpeg,.png,.heic" />
+          <span id="file-label">Choose files</span>
+        </label>
+
+        <div class="fields">
+          <label>Work email <input id="email" type="email" required autocomplete="email" inputmode="email" /></label>
+          <label>Company <input id="company" type="text" autocomplete="organization" /></label>
+          <label
+            >Where you file
+            <select id="files-in">
+              <option value="">Choose one</option>
+              <option value="CA">California (DIR eCPR)</option>
+              <option value="NY">New York (NY DOL)</option>
+              <option value="LCP">LCPtracker, any state</option>
+              <option value="FED">Paper or PDF to the prime</option>
+              <option value="OTHER">Somewhere else</option>
+            </select>
+          </label>
+          <label
+            ><span>Phone <span class="opt">optional</span></span> <input id="phone" type="tel" autocomplete="tel" inputmode="tel"
+          /></label>
+        </div>
+
+        <button id="send" type="submit" class="go">Send payroll</button>
+        <p id="upload-status" class="status" role="status"></p>
+        <p class="fine">
+          Files go to a private store only we can read. We use them only to prepare your certified payroll and delete them on request.
+        </p>
+      </form>
+
+      <section id="pay" class="step">
+        <h2><span class="n">2</span> Start the free two weeks</h2>
+        <p>
+          <b>$199 a month per project</b>, charged from day 15 unless you cancel. Cancel any time from the link in your receipt. A card is
+          needed to start.
+        </p>
+        <a id="trial" class="go" href="https://buy.stripe.com/6oUeVd6Vb9TQbz21Esc7u03">Start 14 days free</a>
+        <p class="fine">No file to hand yet? Start anyway and reply to our email with it.</p>
+      </section>
+
+      <p class="contact">Questions: <a href="mailto:support@easywh347.com">support@easywh347.com</a></p>
+    </main>
+    <footer>
+      <p>EasyWH347 is an independent product and is not affiliated with the U.S. Department of Labor.</p>
+    </footer>
+  </body>
+</html>
