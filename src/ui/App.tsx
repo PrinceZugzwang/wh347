@@ -79,6 +79,24 @@ function hasTyping(crew: CrewEntry[]): boolean {
   return crew.some((e) => e.name.trim() !== "" || e.hours.some((h) => h.trim() !== ""));
 }
 
+/** Runs `fn` after the page has loaded, when the browser is idle. Returns a cancel function. */
+function whenIdle(fn: () => void): () => void {
+  let cancelled = false;
+  let idleId: number | undefined;
+  const run = () => {
+    if (cancelled) return;
+    if ("requestIdleCallback" in window) idleId = window.requestIdleCallback(() => !cancelled && fn(), { timeout: 4000 });
+    else setTimeout(() => !cancelled && fn(), 1500);
+  };
+  if (document.readyState === "complete") run();
+  else window.addEventListener("load", run, { once: true });
+  return () => {
+    cancelled = true;
+    window.removeEventListener("load", run);
+    if (idleId !== undefined) window.cancelIdleCallback(idleId);
+  };
+}
+
 async function fetchBundledForm(): Promise<Uint8Array | null> {
   try {
     const res = await fetch(`${import.meta.env.BASE_URL}forms/wh347.pdf`);
@@ -149,12 +167,20 @@ export function App() {
       });
   }, []);
 
+  // The blank DOL form (300 KB) and the PDF and Excel code are fetched once the
+  // page has loaded and the browser is idle, so they don't compete with the first
+  // screen. Fetching them early keeps the page working with the connection off,
+  // which is also how a user can check nothing is uploaded.
   useEffect(() => {
-    fetchBundledForm().then((bytes) => {
-      if (bytes) {
-        setOfficialForm(bytes);
-        setOfficialFormSource("bundled");
-      }
+    return whenIdle(() => {
+      fetchBundledForm().then((bytes) => {
+        if (bytes) {
+          setOfficialForm(bytes);
+          setOfficialFormSource("bundled");
+        }
+      });
+      void import("../core/render/pdf");
+      void import("read-excel-file/browser");
     });
   }, []);
 
@@ -285,16 +311,6 @@ export function App() {
     };
   }, []);
 
-  // Fetch the lazily loaded parts early, so the page keeps working with the
-  // connection off. That is also how a user can check nothing is uploaded.
-  useEffect(() => {
-    const id = setTimeout(() => {
-      void import("../core/render/pdf");
-      void import("read-excel-file/browser");
-    }, 1200);
-    return () => clearTimeout(id);
-  }, []);
-
   function onMapping(next: ColumnMapping) {
     setMapping(next);
     if (sheet) save("mapping", { headers: sheet.headers, mapping: next });
@@ -385,7 +401,7 @@ export function App() {
     try {
       // pdf-lib is most of the bundle, so it loads only when someone downloads.
       const { renderPayrollPdf } = await import("../core/render/pdf");
-      const bytes = await renderPayrollPdf(result.payroll, officialForm ?? undefined);
+      const bytes = await renderPayrollPdf(result.payroll, officialForm ?? (await fetchBundledForm()) ?? undefined);
       download(bytes, `${baseName}.pdf`, "application/pdf");
       setDownloaded(true);
       track("PDF downloaded", { sample: isSample, source: source ?? "file", workers: totals?.workers ?? 0 });
@@ -503,6 +519,8 @@ export function App() {
               src={`${import.meta.env.BASE_URL}sample-report.png`}
               width={1720}
               height={470}
+              loading="lazy"
+              decoding="async"
               alt="Page 1 of a certified payroll produced from the sample file"
             />
             <figcaption>

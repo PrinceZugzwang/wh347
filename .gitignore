@@ -5,3 +5,4 @@ dist
 coverage
 public/rates/
 public/sitemap-rates.xml
+dist-ssr
