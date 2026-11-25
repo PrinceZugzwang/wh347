@@ -453,90 +453,68 @@ export function App() {
 
       {!source ? (
         <main class="start" id="top">
-          <h1>
-            Fill in your WH&#8209;347 online. <br />
-            Download it ready to sign.
-          </h1>
+          <h1>Your WH&#8209;347, ready to sign in minutes.</h1>
           <p class="lede">
-            The current January 2025 form. Overtime, fringe, gross and net pay are worked out as you type and checked against your wage
-            rates. Free, with no account to create.
+            Type each worker's hours. Overtime, fringe and net pay are filled in and checked against your wage rates before you sign. Free,
+            no account.
           </p>
 
           <div class="start-actions">
             <button type="button" class="primary big" onClick={startTyping}>
-              {hasTyping(crew) ? "Continue your payroll" : "Fill in the form"}
+              {hasTyping(crew) ? "Continue your payroll" : "Start my WH\u2011347"}
             </button>
             <p class="import-line">
               or{" "}
               <label class="link">
                 <input type="file" accept=".csv,.xlsx,.txt" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
-                import a payroll export
+                import a payroll file
               </label>{" "}
-              from Gusto, ADP, Paychex, QuickBooks or a spreadsheet
+              (Gusto, ADP, QuickBooks, Excel)
             </p>
           </div>
           {fileError && <p class="error-text">{fileError}</p>}
 
-          <p class="blank-form">
-            Just need the blank PDF?{" "}
-            <a href={`${import.meta.env.BASE_URL}forms/wh347.pdf`} download="WH-347.pdf" onClick={() => track("Blank form downloaded")}>
-              Download the official DOL form
-            </a>
-            . Rather work in Excel?{" "}
-            <a href={`${import.meta.env.BASE_URL}certified-payroll-excel-template.html`}>Get the free certified payroll Excel template</a>.
-            Want to see a finished one first?{" "}
-            <button type="button" class="link" onClick={loadSample}>
-              Open a sample payroll
-            </button>
-            .
-          </p>
-
-          <p class="payroll-line">
-            <b>Rather not do payroll at all?</b> We're opening payroll for prevailing-wage crews with certified payroll included, about $3 a
-            paycheck and nothing between jobs.{" "}
-            <a href={`${import.meta.env.BASE_URL}payroll.html`} onClick={() => track("Payroll cta", { where: "start" })}>
-              Get early access
-            </a>
-          </p>
-
-          <dl class="facts">
-            <div>
-              <dt>The arithmetic is done</dt>
-              <dd>Hours past 40 become overtime at time and a half. Fringe, gross and net pay add up as you type.</dd>
-            </div>
-            <div>
-              <dt>Current form</dt>
-              <dd>Matches the WH-347 revised in January 2025 (OMB 1235-0008, valid through January 2028), with DOL's own signing page.</dd>
-            </div>
-            <div>
-              <dt>Next week starts filled in</dt>
-              <dd>Your crew, rates and project are kept in this browser, never uploaded. Next week you only enter the hours.</dd>
-            </div>
-          </dl>
+          <p class="assurances">Current DOL form (January 2025) · DOL's signing page included · Your payroll never leaves your computer</p>
 
           <figure class="proof">
             <img
-              src={`${import.meta.env.BASE_URL}sample-report.png`}
+              src={`${import.meta.env.BASE_URL}sample-report.webp`}
               width={1720}
               height={470}
-              loading="lazy"
               decoding="async"
-              alt="Page 1 of a certified payroll produced from the sample file"
+              fetchpriority="high"
+              alt="Page 1 of a finished certified payroll, overtime already split out"
             />
             <figcaption>
-              What you download: page 1 from the sample file, overtime already split out. Page 2 is the Department of Labor's own signing
-              page.{" "}
+              What you download.{" "}
               <a
                 href={`${import.meta.env.BASE_URL}sample-certified-payroll.pdf`}
                 target="_blank"
                 rel="noopener"
                 onClick={() => track("Sample PDF opened")}
               >
-                Open the full sample PDF
+                See the full sample PDF
               </a>{" "}
-              (a made-up company and crew).
+              or{" "}
+              <button type="button" class="link" onClick={loadSample}>
+                try it with a sample crew
+              </button>
+              .
             </figcaption>
           </figure>
+
+          <p class="also">
+            Only need the blank form?{" "}
+            <a href={`${import.meta.env.BASE_URL}forms/wh347.pdf`} download="WH-347.pdf" onClick={() => track("Blank form downloaded")}>
+              Download it
+            </a>{" "}
+            or use the <a href={`${import.meta.env.BASE_URL}certified-payroll-excel-template.html`}>Excel template</a>. Rather hand off
+            payroll entirely?{" "}
+            <a href={`${import.meta.env.BASE_URL}payroll.html`} onClick={() => track("Payroll cta", { where: "start" })}>
+              Get early access
+            </a>
+            .
+          </p>
         </main>
       ) : source === "typed" ? (
         <main class="bench">

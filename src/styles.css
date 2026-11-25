@@ -213,39 +213,23 @@ button.primary.big {
   color: var(--ink-2);
 }
 
-.blank-form {
-  margin: 18px 0 0;
+.assurances {
+  margin: 14px 0 0;
   max-width: 820px;
-  font-size: 15px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.also {
+  margin: 28px 0 0;
+  max-width: 820px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--ink-2);
 }
 
-.blank-form a {
+.also a {
   color: var(--blue);
-  font-weight: 600;
-}
-
-/* The payroll demand test: one line under the start actions, same weight as the rest of the page. */
-.payroll-line {
-  margin: 22px 0 0;
-  padding: 14px 18px;
-  max-width: 820px;
-  border: 1.5px solid var(--ink);
-  border-radius: 10px;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--ink-2);
-}
-
-.payroll-line b {
-  color: var(--ink);
-}
-
-.payroll-line a {
-  color: var(--blue);
-  font-weight: 700;
-  white-space: nowrap;
 }
 
 .dropzone {
@@ -293,29 +277,9 @@ button.primary.big {
   color: var(--ink-2);
 }
 
-.facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
-  max-width: 820px;
-  margin: 40px 0 0;
-  padding-top: 18px;
-  border-top: 1px solid var(--rule);
-}
-
-.facts dt {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.facts dd {
-  margin: 4px 0 0;
-  font-size: 14px;
-  color: var(--ink-2);
-}
-
 .proof {
-  margin: 80px 0 0;
+  margin: 32px 0 0;
+  max-width: 820px;
 }
 
 .proof img {
