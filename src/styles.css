@@ -900,6 +900,44 @@ button.plan-action {
   color: var(--ink-2);
 }
 
+.lead-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.lead-form label {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.lead-form input,
+.lead-form select {
+  font: inherit;
+  font-size: 16px;
+  padding: 9px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.lead-form .opt {
+  color: var(--ink-3);
+}
+
+.lead-form button.primary {
+  margin-top: 4px;
+  justify-self: start;
+}
+
+.lead-done {
+  margin-top: 16px;
+  font-weight: 600;
+}
+
 .plan-note {
   margin: 8px 0 0;
   font-size: 13px;

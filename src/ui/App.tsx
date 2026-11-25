@@ -37,7 +37,8 @@ import { Mark } from "./Mark";
 import { downloadWorkbook } from "./excel";
 import { readGrid, readPayrollWorkbook } from "./read-file";
 import { load, save } from "./storage";
-import { proConfigured, RECORDS_URL } from "../pro/config";
+import { PRO_LINK, proConfigured, RECORDS_URL } from "../pro/config";
+import { LeadForm } from "./LeadForm";
 import { ProSave } from "./ProSave";
 
 const EMPTY_HEADER: ProjectHeader = {
@@ -862,13 +863,17 @@ export function App() {
               </ul>
               {proConfigured ? (
                 <>
-                  <a class="plan-action" href={RECORDS_URL} onClick={() => track("Pro interest", { where: "pricing" })}>
+                  <a
+                    class="plan-action"
+                    href={PRO_LINK || RECORDS_URL}
+                    onClick={() => track("Pro interest", { where: "pricing", direct: PRO_LINK ? "stripe" : "records" })}
+                  >
                     Start Pro
                   </a>
                   <p class="plan-note">
-                    Sign in with your email, then subscribe by card. Billed monthly. Cancel any time from your records page or by email: no
-                    more charges, and you keep Pro to the end of the month you paid for. After that, every week you saved stays there to
-                    view and download.
+                    Pay by card on Stripe, then sign in here with the same email. Billed monthly. Cancel any time from your records page or
+                    by email: no more charges, and you keep Pro to the end of the month you paid for. After that, every week you saved stays
+                    there to view and download.
                   </p>
                 </>
               ) : (
@@ -904,13 +909,17 @@ export function App() {
                 <li>We prepare the certified payroll and enter it into the agency's portal</li>
                 <li>You review and sign</li>
               </ul>
-              <a
-                class="plan-action"
-                href="mailto:support@easywh347.com?subject=Done-for-you%20certified%20payroll"
-                onClick={() => track("Done for you interest")}
-              >
-                Talk to us
-              </a>
+              {proConfigured ? (
+                <LeadForm />
+              ) : (
+                <a
+                  class="plan-action"
+                  href="mailto:support@easywh347.com?subject=Done-for-you%20certified%20payroll"
+                  onClick={() => track("Done for you interest")}
+                >
+                  Talk to us
+                </a>
+              )}
             </div>
           </div>
           <p class="who">
