@@ -1,0 +1,186 @@
+.aside {
+  margin-top: 28px;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+/* Checker */
+
+.verdict {
+  font-weight: 700;
+  padding: 12px 14px;
+  border-left: 4px solid;
+}
+
+.verdict.pass {
+  border-color: #2e7d4f;
+  background: #eef6f1;
+}
+
+.verdict.fail {
+  border-color: #b3261e;
+  background: #fbefee;
+}
+
+.problems {
+  padding-left: 22px;
+  font-size: 15px;
+}
+
+.problems li {
+  margin: 6px 0;
+}
+
+.library dt {
+  margin-top: 20px;
+  font-weight: 700;
+  scroll-margin-top: 16px;
+}
+
+.library dt:target {
+  background: #fff6d6;
+}
+
+.library dd {
+  margin: 4px 0 0;
+  color: var(--ink-2);
+}
+
+.library-list li {
+  margin: 8px 0;
+}
+
+/* Status board */
+
+.checked {
+  font-weight: 600;
+}
+
+.board {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 15px;
+}
+
+.board th,
+.board td {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: middle;
+}
+
+.board thead th {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.board tbody th a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.board .area {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.board .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.state {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.state.up {
+  color: #2e7d4f;
+}
+
+.state.slow {
+  color: #9a6400;
+}
+
+.state.down {
+  color: #b3261e;
+}
+
+.strip {
+  display: flex;
+  gap: 2px;
+}
+
+.strip i {
+  flex: 1;
+  height: 22px;
+  min-width: 3px;
+  background: #e4e7eb;
+}
+
+.strip i.up {
+  background: #4f9d6f;
+}
+
+.strip i.slow {
+  background: #d9a441;
+}
+
+.strip i.down {
+  background: #c8473f;
+}
+
+.pitch {
+  margin-top: 36px;
+  padding: 20px;
+  border: 1px solid var(--rule);
+}
+
+.pitch .go {
+  margin-top: 6px;
+}
+
+@media (max-width: 560px) {
+  .board .hist {
+    display: none;
+  }
+}
+
+/* Behind / GC page */
+
+.from-gc {
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.gc {
+  margin-top: 44px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule);
+}
+
+.copy {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.copy input {
+  flex: 1;
+  min-width: 220px;
+  font: inherit;
+  padding: 10px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+
+.copy .go {
+  margin-top: 0;
+}

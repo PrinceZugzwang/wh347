@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Free eCPR XML checker and error fixes | EasyWH347</title>
+    <link rel="canonical" href="https://easywh347.com/ecpr-check.html" />
+    <meta
+      name="description"
+      content="Check a California DIR eCPR XML file before you upload it. Finds the errors that make DIR reject a version 2 file, and explains each fix. Free, and the file never leaves your computer."
+    />
+    <script async src="https://plausible.io/js/pa-LsqnZrZ_AWqSKRzTcPYEM.js"></script>
+    <script>
+      window.plausible =
+        window.plausible ||
+        function () {
+          (plausible.q = plausible.q || []).push(arguments);
+        };
+      plausible.init =
+        plausible.init ||
+        function (i) {
+          plausible.o = i || {};
+        };
+      plausible.init();
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/checker.ts"></script>
+  </head>
+  <body>
+    <header><a href="./">EasyWH347</a></header>
+    <main class="checker">
+      <h1>Check your eCPR file before DIR does</h1>
+      <p class="lede">
+        Pick a California eCPR XML file. We check it against every rule in DIR's version 2 guide and tell you which line to fix. It runs in
+        your browser; the file is never uploaded.
+      </p>
+
+      <label class="drop" id="drop">
+        <input id="file" type="file" accept=".xml,text/xml,application/xml" />
+        <span id="file-label">Choose an eCPR .xml file</span>
+      </label>
+      <div id="result" role="status"></div>
+
+      <p class="aside">
+        Is the DIR site down right now? See the <a href="portal-status.html">portal status board</a>. Rather not deal with it at all?
+        <a href="start.html?utm_source=checker">We prepare and check it for you</a>.
+      </p>
+
+      <h2>Why DIR rejects eCPR files, and the fix</h2>
+      <p>From DIR's <a href="https://www.dir.ca.gov/Public-Works/cpr/eCPR-XML-Guidelines-V2.pdf">eCPR XML Guidelines, version 2</a>.</p>
+
+      <dl class="library">
+        <dt id="not-xml">The file isn't well-formed XML</dt>
+        <dd>
+          A tag is left open, or a character such as <code>&amp;</code> or <code>&lt;</code> in a name or address isn't escaped. Write
+          <code>&amp;amp;</code> for &amp;. Open the file in a browser: it points at the first broken line.
+        </dd>
+
+        <dt id="root">Wrong format or version 1 file</dt>
+        <dd>
+          A version 2 file starts with <code>&lt;CPR:eCPR&gt;</code> and its <code>&lt;CPR:version&gt;</code> says <code>2.0</code>. Files
+          for New York, LCPtracker or other systems use different tags and won't load in DIR.
+        </dd>
+
+        <dt id="version">Version isn't 2.0</dt>
+        <dd>Leave the version exactly as DIR's sample has it: <code>2.0</code>.</dd>
+
+        <dt id="v1-fields">Fields removed in version 2</dt>
+        <dd>
+          These version 1 fields now make the upload fail: contractorLicense, contractorFEIN, contractorAddress, insuranceNum,
+          contractorEmail, contractAgencyID, contractAgency, projectName, awardingBodyID, projectNum, contractID and projectLocation. Delete
+          them. Older payroll software still writes some of them.
+        </dd>
+
+        <dt id="pwcr">Registration number (PWCR)</dt>
+        <dd>
+          Exactly the 10 digits of your public works contractor registration, and it has to match what DIR has on file. "NA" is no longer
+          accepted. An expired registration also fails: renew it on DIR's site first.
+        </dd>
+
+        <dt id="project-id">Project ID</dt>
+        <dd>
+          The numeric project ID DIR gave the project when the awarding body filed the PWC-100. Not the agency's contract number. Ask the
+          prime or the awarding body if you don't have it.
+        </dd>
+
+        <dt id="contractor">Contractor name</dt>
+        <dd>Required, up to 56 characters.</dd>
+
+        <dt id="non-performance">Weeks with no work</dt>
+        <dd>
+          For a week with no work on the project, set <code>statementOfNP</code> to <code>true</code> (lower case) and leave out the
+          employees. Submitted payrolls can't be deleted, so a non-performance statement is also how you cover a week you skipped.
+        </dd>
+
+        <dt id="dates">Dates</dt>
+        <dd>
+          Dates are written YYYY-MM-DD. Each classification has seven days in order: day 1 is six days before the week-ending date and day 7
+          is the week-ending date itself.
+        </dd>
+
+        <dt id="days">Seven days, numbered 1 to 7</dt>
+        <dd>Every classification needs exactly seven <code>&lt;day&gt;</code> elements with id 1 to 7, even for days off (enter 0.0).</dd>
+
+        <dt id="hours">Hours</dt>
+        <dd>
+          Each day's straight time, overtime and double time is a number under 100 with up to two decimals. A worker can't have more than 24
+          hours on one date across all classifications, and can't have zero hours for the week.
+        </dd>
+
+        <dt id="totals">Weekly totals don't match the days</dt>
+        <dd>The three weekly totals must equal the sum of the daily hours, to the hundredth.</dd>
+
+        <dt id="order">Fields out of order</dt>
+        <dd>
+          DIR reads fields in a fixed order and fails the file even when every value is present. For each employee: firstName, lastName,
+          middleName, address, ssn, itin, notes, classifications, payments, deductions, earnings.
+        </dd>
+
+        <dt id="names">Names</dt>
+        <dd>First and last name are required, up to 56 characters each.</dd>
+
+        <dt id="address">Address</dt>
+        <dd>Street (up to 100 characters), city, a two-letter state in capitals, and a ZIP as 12345 or 12345-6789.</dd>
+
+        <dt id="ssn">SSN or ITIN</dt>
+        <dd>At least one, 9 digits with no dashes or spaces. The same SSN can't appear twice in one file.</dd>
+
+        <dt id="classification">Classification and craft</dt>
+        <dd>Every worker needs at least one classification with a name and a craft. Use the official names from the wage determination.</dd>
+
+        <dt id="apprentice">Journeyman or apprentice</dt>
+        <dd>
+          <code>employeeLevel</code> is <code>journeyman</code> or <code>apprentice</code>, in lower case. Apprentices need an apprentice
+          level from 1 to 10; journeymen leave it empty.
+        </dd>
+
+        <dt id="fringe">Fringe</dt>
+        <dd>
+          All five fringe amounts must be present; enter 0.0 where one doesn't apply. At least one of paidToEmployee and paidToBenefitPlan
+          must be true, even when no fringe is owed.
+        </dd>
+
+        <dt id="rates">Pay rates</dt>
+        <dd>All six rate fields are required and under 10,000. If there are straight-time hours, the straight-time rate can't be 0.</dd>
+
+        <dt id="deductions">Deductions</dt>
+        <dd>
+          All eight deduction fields are required (0.0 if none), and totalDeductions must equal their sum. Travel and subsistence go under
+          payments, not deductions, and fringe never counts as a deduction.
+        </dd>
+
+        <dt id="earnings">Earnings and check number</dt>
+        <dd>
+          Gross for this project, gross for all work, net pay and a check number (up to 20 characters; write CASH for cash). DIR stores
+          these as entered and does not recheck them, so a wrong figure goes through silently.
+        </dd>
+
+        <dt id="lengths">Too long</dt>
+        <dd>Limits: names and awarding body 56 characters, street 100, city 250, notes 256, check number 20.</dd>
+
+        <dt id="system-fields">Payroll and amendment numbers</dt>
+        <dd>Leave payrollNum and amendmentNum empty. DIR assigns them.</dd>
+
+        <dt id="too-many">More than 500 workers</dt>
+        <dd>DIR takes up to 500 employees per file. Split the week into two files.</dd>
+
+        <dt id="structure">Missing sections</dt>
+        <dd>A file needs contractorInfo, projectInfo and payrollInfo, in that order.</dd>
+      </dl>
+
+      <h2>When the portal itself is the problem</h2>
+      <ul class="library-list">
+        <li>
+          <b>The XML loads but nothing appears.</b> DIR's FAQ acknowledges reports of this and offers no fix. Try another browser, or enter
+          the week in the web form.
+        </li>
+        <li><b>The web form doesn't save.</b> Finish in one sitting, or submit what you have and send an amended payroll for the rest.</li>
+        <li><b>You made a mistake.</b> Resubmit the same week; the amended version replaces the original.</li>
+        <li>
+          <b>The prime said LCPtracker is enough.</b> It isn't. DIR requires its own submission from every contractor, even when you also
+          file in LCPtracker.
+        </li>
+      </ul>
+      <p class="fine">Source: <a href="https://www.dir.ca.gov/Public-Works/ecprfaq.html">DIR eCPR FAQ</a>.</p>
+    </main>
+    <footer>
+      <p>EasyWH347 is an independent tool and is not affiliated with the California Department of Industrial Relations.</p>
+    </footer>
+  </body>
+</html>

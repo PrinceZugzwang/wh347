@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Is DIR eCPR down? Certified payroll portal status | EasyWH347</title>
+    <link rel="canonical" href="https://easywh347.com/portal-status.html" />
+    <meta
+      name="description"
+      content="Live status of the certified payroll portals: California DIR eCPR, LCPtracker, New York MPWR, New Jersey Wage Hub, Illinois, Washington L&I and SAM.gov. Checked every 15 minutes."
+    />
+    <script async src="https://plausible.io/js/pa-LsqnZrZ_AWqSKRzTcPYEM.js"></script>
+    <script>
+      window.plausible =
+        window.plausible ||
+        function () {
+          (plausible.q = plausible.q || []).push(arguments);
+        };
+      plausible.init =
+        plausible.init ||
+        function (i) {
+          plausible.o = i || {};
+        };
+      plausible.init();
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/pages/status.ts"></script>
+  </head>
+  <body>
+    <header><a href="./">EasyWH347</a></header>
+    <main class="board-page">
+      <h1>Certified payroll portal status</h1>
+      <p class="lede">Is the portal down, or is it you? We load each filing portal every 15 minutes and show what we saw.</p>
+      <p class="checked" id="checked">Loading the latest checks…</p>
+
+      <table class="board" id="board">
+        <thead>
+          <tr>
+            <th scope="col">Portal</th>
+            <th scope="col">Now</th>
+            <th scope="col" class="hist">Last 24 hours</th>
+            <th scope="col" class="num">Up, 7 days</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <p class="fine">
+        <b>Up</b> means the login page loaded within 8 seconds. <b>Slow</b> means it loaded, but took longer. <b>Down</b> means it failed or
+        timed out. We only load the public login page, so a portal can show up here and still fail when you log in or upload.
+      </p>
+
+      <h2>If the portal is down and the payroll is due</h2>
+      <ul>
+        <li>Keep a screenshot of the error with the date and time. It's your record that you tried on time.</li>
+        <li>
+          For California eCPR, check the file first with our <a href="ecpr-check.html">free eCPR checker</a>, so it loads the moment DIR is
+          back.
+        </li>
+        <li>
+          Send the PDF WH-347 to the prime or agency in the meantime if your contract asks for it. You can make one
+          <a href="./">free here</a>.
+        </li>
+      </ul>
+
+      <div class="pitch">
+        <p>
+          <b>Rather not fight the portal every week?</b> Send us your payroll export. We prepare the certified payroll, check it, and file
+          it.
+        </p>
+        <a class="go" href="start.html?utm_source=status">Start your two free weeks</a>
+      </div>
+    </main>
+    <footer>
+      <p>EasyWH347 is independent and not affiliated with any agency or portal listed here.</p>
+    </footer>
+  </body>
+</html>

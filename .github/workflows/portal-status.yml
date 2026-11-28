@@ -1,0 +1,41 @@
+name: portal-status
+
+# Checks the certified payroll filing portals and publishes status.json on the
+# `status` branch, which the status page reads. The branch keeps one commit.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: portal-status
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Previous results
+        run: |
+          mkdir -p out
+          git fetch --depth=1 origin status 2>/dev/null && git show FETCH_HEAD:status.json > out/status.json || echo '{}' > out/status.json
+      - run: node scripts/portal-check.mjs out/status.json
+      - name: Publish
+        run: |
+          cd out
+          git init -q -b status
+          git config user.name "portal-status"
+          git config user.email "portal-status@users.noreply.github.com"
+          git add status.json
+          git commit -q -m "Portal status"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" status
